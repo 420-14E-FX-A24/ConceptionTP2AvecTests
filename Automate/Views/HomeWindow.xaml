@@ -92,6 +92,19 @@
                     HorizontalAlignment="Right"
                     Grid.Column="3"
                     VerticalAlignment="Center"/>
+                <Button
+                    Margin="0,0,100,0"
+                    x:Name="SerreAutomate"
+                    Content="Contrôle" 
+                    Width="145" 
+                    Height="43" 
+                    Style="{StaticResource MaterialDesignRaisedLightButton}"
+                    Command="{Binding ControleCommand}"
+                    IsEnabled="{Binding IsAdmin}"
+                    RenderTransformOrigin="0.509,1.411"
+                    HorizontalAlignment="Right"
+                    Grid.Column="2"
+                    VerticalAlignment="Center"/>
             </Grid>
         </Border>
 
@@ -196,7 +209,5 @@
         </materialDesign:Card>
 
         <Border Grid.Row="2" Grid.Column="0" Background="{DynamicResource MaterialDesign.Brush.Primary.Dark}" HorizontalAlignment="Stretch" Grid.ColumnSpan="6"/>
-        <Button x:Name="GetUnitsButton"
-Content="get units" HorizontalAlignment="Left" Margin="558,605,0,0" Grid.Row="1" VerticalAlignment="Top" Command="{Binding GetUnitValuesCommand}"/>
     </Grid>
 </Window>

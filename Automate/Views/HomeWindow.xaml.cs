@@ -10,5 +10,5 @@ namespace Automate.Views
             InitializeComponent();
             DataContext = new HomeViewModel(this);
         }
-	}
+    }
 }

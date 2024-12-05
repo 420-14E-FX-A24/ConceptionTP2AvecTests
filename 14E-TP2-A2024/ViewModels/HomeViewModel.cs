@@ -23,9 +23,9 @@ namespace Automate.ViewModels
 		public ICommand ShowDayTasksCommand { get; }
 		public ICommand EditDayTasksCommand { get; }
 		public ICommand CloseDialogCommand { get; }
-        public ICommand ControleCommand { get; }
-        public RelayCommand ShowDialogCommand { get; }
+		public RelayCommand ShowDialogCommand { get; }
 		public RelayCommand LogoutCommand { get; }
+		public RelayCommand GetUnitValuesCommand { get; }
 
 		public event PropertyChangedEventHandler? PropertyChanged;
 		private readonly NavigationService _navigationService;
@@ -36,33 +36,25 @@ namespace Automate.ViewModels
 		{
 			if (_mongoService is null)
 				_mongoService = new MongoDBService("AutomateDB");
-            _navigationService = new NavigationService();
-            Window = openedWindow;
-            if (_windowService is null)
-				_windowService = WindowServiceWrapper.GetInstance(this, openedWindow, _navigationService);
+
+			if (_windowService is null)
+				_windowService = WindowServiceWrapper.GetInstance(this, openedWindow);
 
 			ShowDayTasksCommand = new RelayCommand(ShowDayTasks);
 			EditDayTasksCommand = new RelayCommand(EditDayTasks);
 			ShowDialogCommand = new RelayCommand(ShowDialog);
 			CloseDialogCommand = new RelayCommand(CloseDialog);
-			ControleCommand = new RelayCommand(NaviguerControle);
-            LogoutCommand = new RelayCommand(Logout);
+			LogoutCommand = new RelayCommand(Logout);
+			GetUnitValuesCommand = new RelayCommand(GetUnitValues);
+
+			_navigationService = new NavigationService();
+			Window = openedWindow;
 
 			if (openedWindow is not null)
 				ShowDayTasks();
 		}
 
-        private void NaviguerControle(object obj)
-        {
-			if (IsAdmin)
-			{
-                _navigationService.NavigateTo<FarmingWindow>(null, IsAdmin);
-                _navigationService.Close(Window);
-            }
-				
-        }
-
-        private bool _isAdmin;
+		private bool _isAdmin;
 		public bool IsAdmin
 		{
 			get => _isAdmin;
@@ -196,12 +188,28 @@ namespace Automate.ViewModels
 			DialogHost.Close("Alertes", null);
 		}
 
-        private void Logout()
-        {
-            if (_windowService is not null)
-                _windowService.Logout();
-        }
-        
+		public void Logout()
+		{
+			IsAdmin = false;
+			Window.DataContext = null;
+			_windowService = null;
+
+			_navigationService.NavigateTo<LoginWindow>();
+
+			foreach (Window window in Application.Current.Windows)
+			{
+				if (window.Name == "EditDayTasksView" || window.Name == "HomeView")
+				{
+					window.Close();
+					break;
+				}
+			}
+		}
+
+		public void GetUnitValues()
+		{
+
+		}
 
 		protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
 		{
