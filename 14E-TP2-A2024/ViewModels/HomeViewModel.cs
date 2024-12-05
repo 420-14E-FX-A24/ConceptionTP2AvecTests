@@ -37,8 +37,10 @@ namespace Automate.ViewModels
 			if (_mongoService is null)
 				_mongoService = new MongoDBService("AutomateDB");
 
+			_navigationService = new NavigationService();
+
 			if (_windowService is null)
-				_windowService = WindowServiceWrapper.GetInstance(this, openedWindow);
+				_windowService = WindowServiceWrapper.GetInstance(this, openedWindow, _navigationService);
 
 			ShowDayTasksCommand = new RelayCommand(ShowDayTasks);
 			EditDayTasksCommand = new RelayCommand(EditDayTasks);
@@ -47,7 +49,6 @@ namespace Automate.ViewModels
 			LogoutCommand = new RelayCommand(Logout);
 			GetUnitValuesCommand = new RelayCommand(GetUnitValues);
 
-			_navigationService = new NavigationService();
 			Window = openedWindow;
 
 			if (openedWindow is not null)
