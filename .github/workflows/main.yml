@@ -9,7 +9,7 @@ on:
       - main
 
 permissions:
-  issues: write      
+  issues: write
 
 jobs:
   build:
@@ -24,15 +24,18 @@ jobs:
       with:
         dotnet-version: '6.0.x'
 
+    - name: Navigate to project directory
+      run: cd 14E-TP2-A2024
+
     - name: Restore dependencies
-      run: dotnet restore
+      run: dotnet restore 14E-TP2-A2024/Automate.csproj
 
     - name: Build project
-      run: dotnet build --configuration Release --no-restore
+      run: dotnet build --configuration Release --no-restore 14E-TP2-A2024/Automate.csproj
 
     - name: Run tests
       id: test
-      run: dotnet test --no-build --verbosity normal
+      run: dotnet test --no-build --verbosity normal 14E-TP2-A2024/Automate.csproj
 
     - name: Create GitHub issue on test failure
       if: failure()
