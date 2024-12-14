@@ -1,5 +1,7 @@
 # TP2_14E_A24
-# https://github.com/Ombrenoirz/ConceptionTP2AvecTests
+# https://github.com/420-14E-FX-A24/ConceptionTP2AvecTests
+!CI/CD Pipeline
+https://github.com/420-14E-FX-A24/ConceptionTP2AvecTests/actions/workflows/main.yml/badge.svg
 Automate
 #
 #

@@ -1,0 +1,47 @@
+name: main.yml
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: '6.0.x'
+
+    - name: Restore dependencies
+      run: dotnet restore
+
+    - name: Build project
+      run: dotnet build --configuration Release --no-restore
+
+    - name: Run tests
+      id: test
+      run: dotnet test --no-build --verbosity normal
+
+    - name: Create GitHub issue on test failure
+      if: failure()
+      uses: actions/github-script@v6
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          const { owner, repo } = context.repo;
+          const issueTitle = `Test Failure in ${context.workflow}`;
+          const issueBody = `One or more tests failed in the workflow **${context.workflow}**. Please check the details and fix the issues.`;
+          const issue = await github.issues.create({
+            owner,
+            repo,
+            title: issueTitle,
+            body: issueBody,
+            labels: ['bug', 'test-failure']
+          });
+          core.setOutput('issue-url', issue.data.html_url);
