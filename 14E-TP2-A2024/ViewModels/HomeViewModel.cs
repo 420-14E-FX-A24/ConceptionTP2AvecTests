@@ -24,33 +24,74 @@ namespace Automate.ViewModels
 		public ICommand EditDayTasksCommand { get; }
 		public ICommand CloseDialogCommand { get; }
         public ICommand ControleCommand { get; }
+        public ICommand ReadMeteoDataCommand { get; }
+        public ICommand StopReadingMeteoDataCommand { get; }
         public RelayCommand ShowDialogCommand { get; }
 		public RelayCommand LogoutCommand { get; }
 
 		public event PropertyChangedEventHandler? PropertyChanged;
-		private readonly NavigationService _navigationService;
+
+        private void WindowServiceWrapper_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            // Notify that a property has changed
+            OnPropertyChanged(e.PropertyName);
+        }
+
+        private readonly NavigationService _navigationService;
 		private readonly MongoDBService _mongoService;
 		private static IWindowService? _windowService;
 
-		public HomeViewModel(Window openedWindow)
+        public HomeViewModel(Window openedWindow)
 		{
 			if (_mongoService is null)
 				_mongoService = new MongoDBService("AutomateDB");
+
             _navigationService = new NavigationService();
             Window = openedWindow;
             if (_windowService is null)
-				_windowService = WindowServiceWrapper.GetInstance(this, openedWindow, _navigationService);
+				InitialiserWindowService();
 
-			ShowDayTasksCommand = new RelayCommand(ShowDayTasks);
+            ShowDayTasksCommand = new RelayCommand(ShowDayTasks);
 			EditDayTasksCommand = new RelayCommand(EditDayTasks);
 			ShowDialogCommand = new RelayCommand(ShowDialog);
 			CloseDialogCommand = new RelayCommand(CloseDialog);
 			ControleCommand = new RelayCommand(NaviguerControle);
             LogoutCommand = new RelayCommand(Logout);
-
-			if (openedWindow is not null)
+            ReadMeteoDataCommand = new RelayCommand(ReadMeteoData);
+            StopReadingMeteoDataCommand = new RelayCommand(StopReadingMeteoData);
+            if (openedWindow is not null)
 				ShowDayTasks();
 		}
+
+        private void ReadMeteoData()
+        {
+            WindowService.FileName = "TempData(corrige).txt";
+            if (!WindowService.MeteoDataIsRead)
+            {
+                WindowService.MeteoDataIsRead = true;
+                WindowService.ReadMeteoData();
+            }
+            else
+                MessageBox.Show("Lecture des données en cours. " +
+                    "Appuyer sur le bouton Arrêter la lecture. " +
+                    "Ensuite, vous pourrez réessayer.",
+                    "Lecture de la météo.",
+                    MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+
+        private void StopReadingMeteoData()
+        {
+            WindowService.MeteoDataIsRead = false;
+        }
+
+        private void InitialiserWindowService()
+		{
+            _windowService = WindowServiceWrapper.GetInstance(this, Window, _navigationService);
+            if (_windowService is INotifyPropertyChanged notifyPropertyChanged)
+            {
+                notifyPropertyChanged.PropertyChanged += WindowServiceWrapper_PropertyChanged;
+            }
+        }
 
         private void NaviguerControle(object obj)
         {
@@ -62,18 +103,31 @@ namespace Automate.ViewModels
 				
         }
 
+        public WindowServiceWrapper WindowService
+        {
+            get => (WindowServiceWrapper)_windowService;
+            set
+            {
+                if (_windowService != value)
+                {
+                    _windowService = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
         private bool _isAdmin;
 		public bool IsAdmin
 		{
-			get => _isAdmin;
+			get => WindowService.IsAdmin;
 			set
 			{
 				if (_isAdmin != value)
 				{
 					_isAdmin = value;
-					_windowService.IsAdmin = value;
+					WindowService.IsAdmin = value;
 				}
-				OnPropertyChanged(nameof(IsAdmin));
+				OnPropertyChanged(nameof(WindowService.IsAdmin));
 			}
 		}
 
@@ -205,7 +259,13 @@ namespace Automate.ViewModels
 
 		protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
 		{
-			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-		}
+			string fullPropertyName = propertyName;
+
+            if (propertyName == "TemperatureReelle" 
+				|| propertyName == "HumiditeReelle" 
+				|| propertyName == "LuminositeReelle")
+                fullPropertyName = "WindowService." + propertyName;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(fullPropertyName));
+        }
 	}
 }
