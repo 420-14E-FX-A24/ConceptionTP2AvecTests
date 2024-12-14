@@ -49,7 +49,6 @@ namespace Automate.ViewModels
 			CloseDialogCommand = new RelayCommand(CloseDialog);
 			ControleCommand = new RelayCommand(NaviguerControle);
 			LogoutCommand = new RelayCommand(Logout);
-			GetUnitValuesCommand = new RelayCommand(GetUnitValues);
 
 			Window = openedWindow;
 
@@ -217,11 +216,6 @@ namespace Automate.ViewModels
 					break;
 				}
 			}
-		}
-
-		public void GetUnitValues()
-		{
-
 		}
 
 		protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
