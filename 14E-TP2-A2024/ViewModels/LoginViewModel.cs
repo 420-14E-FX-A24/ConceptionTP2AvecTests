@@ -15,7 +15,8 @@ namespace Automate.ViewModels
     public class LoginViewModel : INotifyPropertyChanged, INotifyDataErrorInfo
     {
         private readonly MongoDBService _mongoService;
-        private readonly NavigationService _navigationService;
+        private readonly INavigationService _navigationService;
+
         private Window _window;
 
 		private readonly Dictionary<string, List<string>> _errors = new();
@@ -28,12 +29,17 @@ namespace Automate.ViewModels
         public bool HasErrors => _errors.Count > 0;
         public bool HasPasswordErrors => _errors.ContainsKey(nameof(Password)) && _errors[nameof(Password)].Any();
 
-        public LoginViewModel(Window openedWindow)
+        public LoginViewModel(Window openedWindow, INavigationService navigationService = null)
         {
             _mongoService = new MongoDBService("AutomateDB");
             AuthenticateCommand = new RelayCommand(Authenticate);
-            _navigationService = new NavigationService();
+            _navigationService = navigationService ?? new NavigationService();
             _window = openedWindow;
+        }
+
+        public Window Window
+        {
+            get => _window;
         }
 
 		private string? _username;
@@ -96,7 +102,8 @@ namespace Automate.ViewModels
                 else
                 {
                     _navigationService.NavigateTo<HomeWindow>(null, user.IsAdmin);
-                    _navigationService.Close(_window);
+                    if(Window is not null)
+                        _navigationService.CloseWindow("LoginWindowLaVue");
                 }
 
             }

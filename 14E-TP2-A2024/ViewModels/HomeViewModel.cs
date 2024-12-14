@@ -226,15 +226,22 @@ namespace Automate.ViewModels
 			var dialogContent = new AlertDialog();
 			try
 			{
-				Application.Current.Dispatcher.Invoke(async () =>
-				{
-					if (Window is not null)
-					{
-						await System.Threading.Tasks.Task.Delay(100);
-						DialogHost.Show(dialogContent, "Alertes");
-					}
-				});
-			}
+                if (Application.Current != null)
+                {
+                    Application.Current.Dispatcher.Invoke(async () =>
+                    {
+                        if (Window is not null)
+                        {
+                            await System.Threading.Tasks.Task.Delay(100);
+                            DialogHost.Show(dialogContent, "Alertes");
+                        }
+                    });
+                }
+                else
+                {
+                    Debug.WriteLine("Application.Current is null.");
+                }
+            }
 			catch (InvalidOperationException ex)
 			{
 				Debug.WriteLine($"InvalidOperationException11: {ex.Message}");

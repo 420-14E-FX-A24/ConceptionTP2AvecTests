@@ -87,7 +87,7 @@
                     Content="Déconnexion" 
                     Width="145" 
                     Height="43" 
-                    Style="{StaticResource MaterialDesignRaisedLightButton}"
+                    
                     Command="{Binding LogoutCommand}" 
                     RenderTransformOrigin="0.509,1.411"
                     HorizontalAlignment="Right"
@@ -99,7 +99,7 @@
                     Content="Contrôle" 
                     Width="145" 
                     Height="43" 
-                    Style="{StaticResource MaterialDesignRaisedLightButton}"
+                    
                     Command="{Binding ControleCommand}"
                     IsEnabled="{Binding WindowService.IsAdmin}"
                     RenderTransformOrigin="0.509,1.411"
@@ -139,7 +139,7 @@
                             Height="43" 
                             Margin="0 10" 
                             IsEnabled="{Binding WindowService.IsAdmin}"
-                            Style="{StaticResource MaterialDesignRaisedDarkButton}"
+                            
                             Command="{Binding EditDayTasksCommand}"
                             HorizontalAlignment="Center" RenderTransformOrigin="0.509,1.411"/>
                     </StackPanel>
@@ -230,7 +230,7 @@
                                     HorizontalAlignment="Center"
                                     Width="145" 
                                     Height="42" 
-                                    Style="{StaticResource MaterialDesignRaisedDarkButton}"
+                                    
                                     Command="{Binding ReadMeteoDataCommand}" RenderTransformOrigin="0.509,1.411" 
                                     Margin="10,0,10,0"
                                     Content="Lire météo">
@@ -240,7 +240,7 @@
                                     HorizontalAlignment="Center"
                                     Width="145" 
                                     Height="42" 
-                                    Style="{StaticResource MaterialDesignRaisedDarkButton}"
+                                    
                                     Command="{Binding StopReadingMeteoDataCommand}" RenderTransformOrigin="0.509,1.411" 
                                     Margin="10,0,10,0"
                                     Content="Arrêter lecture">

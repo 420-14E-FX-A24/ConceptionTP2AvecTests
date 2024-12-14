@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Windows;
 using Automate.Models;
 
 namespace Automate.Interfaces
@@ -27,5 +28,6 @@ namespace Automate.Interfaces
         Dictionary<int, string[]> FileData { get; set; }
         int MeteoChangeDelay { get; set; }
         bool MeteoDataIsRead { get; set; }
+
     }
 }

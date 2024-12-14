@@ -50,6 +50,11 @@ namespace Automate.Utils
             return _sharedSingleton;
         }
 
+        public NavigationService NavigationService
+        {
+            get => (_navigationService);
+        }
+
         public object ViewModel
         {
             get => _viewModel;
@@ -63,55 +68,96 @@ namespace Automate.Utils
 
             }
         }
-
         private DateTime _dateSelection;
-
         public DateTime DateSelection
         {
-            get => _dateSelection;
+            get
+            {
+                if (_viewModel is IWindowService service)
+                {
+                    return service.DateSelection;
+                }
+                return _dateSelection;
+            }
             set
             {
-                if (_dateSelection != value)
+                if (_viewModel is IWindowService service)
                 {
-                    _dateSelection = value;
-                    OnPropertyChanged(nameof(DateSelection));
+                    service.DateSelection = value;
                 }
-
+                else
+                {
+                    if (_dateSelection != value)
+                    {
+                        _dateSelection = value;
+                        OnPropertyChanged(nameof(IsAdmin));
+                    }
+                }
             }
         }
+
 
         private bool _isAdmin;
         public bool IsAdmin
         {
-            get => _isAdmin;
+            get
+            {
+                if (_viewModel is IWindowService service)
+                {
+                    return service.IsAdmin;
+                }
+                return _isAdmin;
+            }
             set
             {
-                if (_isAdmin != value)
+                if (_viewModel is IWindowService service)
                 {
-                    _isAdmin = value;
-                    OnPropertyChanged(nameof(IsAdmin));
+                    service.IsAdmin = value;
+                }
+                else
+                {
+                    if (_isAdmin != value)
+                    {
+                        _isAdmin = value;
+                        OnPropertyChanged(nameof(IsAdmin));
+                    }
                 }
             }
         }
 
-        public NavigationService NavigationService
-        {
-            get => (_navigationService);
-        }
+
 
         private ObservableCollection<Automate.Models.Task> _tasks;
+
         public ObservableCollection<Automate.Models.Task> Tasks
         {
-            get => _tasks;
+            get
+            {
+                if (_viewModel is IWindowService service)
+                {
+                    return service.Tasks;
+                }
+                return _tasks ??= new ObservableCollection<Automate.Models.Task>();
+            }
             set
             {
-                if (_tasks != value)
+                if (_viewModel is IWindowService service)
                 {
-                    _tasks = value;
-                    OnPropertyChanged(nameof(Tasks));
+                    service.Tasks = value;
+                }
+                else
+                {
+                    if (_tasks != value)
+                    {
+                        _tasks = value;
+                        OnPropertyChanged(nameof(Tasks));
+                    }
                 }
             }
         }
+
+
+
         private (int, int) _temperatureIdeale = (13, 29); //55 and 85 degrees Fahrenheit
         public (int, int) TemperatureIdeale { get => _temperatureIdeale;}
         private (int, int) _humiditeIdeale = (65, 85); //65 and 85% humidité
@@ -122,11 +168,11 @@ namespace Automate.Utils
         {
 
             if (accesseurReelle < minValue)
-                accesseurConseil = (minValue - accesseurReelle) + accesseurReelle;
+                accesseurConseil = minValue;
             else if (accesseurReelle > maxValue)
-                accesseurConseil = accesseurReelle - (accesseurReelle - maxValue);
+                accesseurConseil = maxValue;
             else
-                accesseurConseil = 0;
+                accesseurConseil = accesseurReelle;
         }
 
         private float _luminositeConseil;
@@ -243,8 +289,6 @@ namespace Automate.Utils
                 }
             }
         }
-
-        ObservableCollection<Models.Task> IWindowService.Tasks { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
         public void Close()
 		{
@@ -371,7 +415,7 @@ namespace Automate.Utils
             return null;
         }
 
-        
+      
     }
 
     

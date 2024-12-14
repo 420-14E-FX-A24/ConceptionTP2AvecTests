@@ -4,6 +4,7 @@ using Moq;
 using Automate.Models;
 using Automate.Utils;
 using Automate.Views;
+using System.Windows;
 
 namespace Automate.Tests
 {
@@ -11,18 +12,21 @@ namespace Automate.Tests
 	public class UserTests
 	{
 		private Mock<MongoDBService> _mongoServiceMock;
-		private Mock<NavigationService> _navigationServiceMock;
-		private Mock<IWindowService> _windowServiceMock;
+        private Mock<INavigationService> _navigationServiceMock;
+        private Mock<IWindowService> _windowServiceMock;
 		private LoginViewModel _viewModel;
 
-		[SetUp]
+
+        [SetUp]
 		public void Setup()
 		{
-			_mongoServiceMock = new Mock<MongoDBService>("AutomateDB");
-			_navigationServiceMock = new Mock<NavigationService>();
-			_windowServiceMock = new Mock<IWindowService>();
+       
+            _mongoServiceMock = new Mock<MongoDBService>("AutomateDB");
+            _navigationServiceMock = new Mock<INavigationService>();
+            _windowServiceMock = new Mock<IWindowService>();
 
-			_viewModel = new LoginViewModel(null);
+			_viewModel = new LoginViewModel(null, _navigationServiceMock.Object);
+
 		}
 
 		[Test]
@@ -75,5 +79,8 @@ namespace Automate.Tests
 			Assert.That(_viewModel.HasErrors, Is.False);
 			_navigationServiceMock.Verify(x => x.NavigateTo<HomeWindow>(null, true), Times.Once);
 		}
-	}
+
+
+
+    }
 }
