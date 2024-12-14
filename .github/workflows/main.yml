@@ -8,6 +8,9 @@ on:
     branches:
       - main
 
+permissions:
+  issues: write      
+
 jobs:
   build:
     runs-on: windows-latest
@@ -35,7 +38,7 @@ jobs:
       if: failure()
       uses: actions/github-script@v6
       with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
+        github-token: ${{ secrets.MY_PAT }}
         script: |
           const { owner, repo } = context.repo;
           const issueTitle = `Test Failure in ${context.workflow}`;
