@@ -38,7 +38,7 @@ jobs:
       if: failure()
       uses: actions/github-script@v6
       with:
-        github-token: ${{ secrets.MY_PAT }}
+        github-token: ${{ secrets.TOKEN }}
         script: |
           const { owner, repo } = context.repo;
           const issueTitle = `Test Failure in ${context.workflow}`;
