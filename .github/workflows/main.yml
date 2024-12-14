@@ -40,7 +40,7 @@ jobs:
           const { owner, repo } = context.repo;
           const issueTitle = `Test Failure in ${context.workflow}`;
           const issueBody = `One or more tests failed in the workflow **${context.workflow}**. Please check the details and fix the issues.`;
-          const issue = await github.issues.create({
+          const issue = await github.rest.issues.create({
             owner,
             repo,
             title: issueTitle,
