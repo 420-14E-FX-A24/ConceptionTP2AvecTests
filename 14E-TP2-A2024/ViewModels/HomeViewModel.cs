@@ -23,6 +23,7 @@ namespace Automate.ViewModels
 		public ICommand ShowDayTasksCommand { get; }
 		public ICommand EditDayTasksCommand { get; }
 		public ICommand CloseDialogCommand { get; }
+		public ICommand ControleCommand { get; }
 		public RelayCommand ShowDialogCommand { get; }
 		public RelayCommand LogoutCommand { get; }
 		public RelayCommand GetUnitValuesCommand { get; }
@@ -46,6 +47,7 @@ namespace Automate.ViewModels
 			EditDayTasksCommand = new RelayCommand(EditDayTasks);
 			ShowDialogCommand = new RelayCommand(ShowDialog);
 			CloseDialogCommand = new RelayCommand(CloseDialog);
+			ControleCommand = new RelayCommand(NaviguerControle);
 			LogoutCommand = new RelayCommand(Logout);
 			GetUnitValuesCommand = new RelayCommand(GetUnitValues);
 
@@ -187,6 +189,16 @@ namespace Automate.ViewModels
 		public void CloseDialog()
 		{
 			DialogHost.Close("Alertes", null);
+		}
+
+		private void NaviguerControle(object obj)
+		{
+			if (IsAdmin)
+			{
+				_navigationService.NavigateTo<FarmingWindow>(null, IsAdmin);
+				_navigationService.Close(Window);
+			}
+
 		}
 
 		public void Logout()

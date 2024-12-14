@@ -9,19 +9,13 @@ namespace Automate.Models
 		[BsonId]
 		public ObjectId Id { get; set; }
 
-		[BsonElement("SystemType")]
-		public SystemTypeEnum SystemType { get; set; }
-
-		[BsonElement("UnitType")]
-		public UnitTypeEnum UnitType { get; set; }
-
-		[BsonElement("UnitValue")]
-		public int UnitValue { get; set; } = 0;
+		[BsonElement("Type")]
+		public SystemTypes Type { get; set; }
 
 		[BsonElement("IsActivated")]
 		public bool IsActivated { get; set; } = false;
 
-		public enum SystemTypeEnum
+		public enum SystemTypes
 		{
 			Windows,
 			Heat,
@@ -30,34 +24,10 @@ namespace Automate.Models
 			Light
 		}
 
-		public enum UnitTypeEnum
-		{
-			Humidity,
-			Temperature,
-			Luminosity
-		}
-
-		public ClimateSystem(SystemTypeEnum systemType)
+		public ClimateSystem(SystemTypes type)
 		{
 			Id = ObjectId.GenerateNewId();
-			SystemType = systemType;
-
-			switch (systemType) 
-			{ 
-				case SystemTypeEnum.Windows:
-				case SystemTypeEnum.Heat:
-				case SystemTypeEnum.Fan:
-					UnitType = UnitTypeEnum.Temperature;
-					break;
-				case SystemTypeEnum.Watering:
-					UnitType = UnitTypeEnum.Humidity;
-					break;
-				case SystemTypeEnum.Light:
-					UnitType = UnitTypeEnum.Luminosity;
-					break;
-				default:
-					break;
-			}
+			Type = type;
 		}
 	}
 }

@@ -72,6 +72,30 @@ namespace Automate.Utils
 			}
 		}
 
+		//public ObservableCollection<ClimateSystem> ClimateSystems
+		//{
+		//	get => (_viewModel as IWindowService)?.ClimateSystems ?? new ObservableCollection<ClimateSystem>();
+		//	set
+		//	{
+		//		if (_viewModel is IWindowService service)
+		//		{
+		//			service.ClimateSystems = value;
+		//		}
+		//	}
+		//}
+
+		//public ObservableCollection<ClimateCondition> ClimateConditions
+		//{
+		//	get => (_viewModel as IWindowService)?.ClimateConditions ?? new ObservableCollection<ClimateCondition>();
+		//	set
+		//	{
+		//		if (_viewModel is IWindowService service)
+		//		{
+		//			service.ClimateConditions = value;
+		//		}
+		//	}
+		//}
+
 		public void Close()
 		{
 			_window.Close();
