@@ -1,6 +1,8 @@
 name: main.yml
 
 on:
+  branches:
+      - '*'
   pull_request:
     branches:
       - main
