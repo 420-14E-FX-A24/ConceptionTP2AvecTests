@@ -82,7 +82,9 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.TOKEN }}
 
     - name: Debug `create_release` outputs
-      run: echo "UPLOAD_URL=${{ steps.create_release.outputs.upload_url }}" >> $GITHUB_ENV
+      run: |
+        echo "UPLOAD_URL=${{ steps.create_release.outputs.upload_url }}" >> $GITHUB_ENV
+        echo "UPLOAD_URL=${{ steps.create_release.outputs.upload_url }}"
 
     - name: Print Upload URL
       run: echo "${{ env.UPLOAD_URL }}"
