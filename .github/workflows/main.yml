@@ -66,6 +66,7 @@ jobs:
       run: |
         $shortSha = $env:GITHUB_SHA.Substring(0, 7)
         echo "SHORT_SHA=$shortSha" >> $GITHUB_ENV
+        echo "SHORT_SHA=$shortSha"
 
     - name: Print SHORT_SHA
       run: echo "${{ env.SHORT_SHA }}"
