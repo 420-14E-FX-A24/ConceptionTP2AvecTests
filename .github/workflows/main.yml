@@ -3,12 +3,10 @@ name: main.yml
 on:
   push:
     branches:
-      - '*'  
-    tags:
-      - 'TP3-V*'  
+      - '*'
   pull_request:
     branches:
-      - main  
+      - main 
 
 permissions:
   issues: write
@@ -57,9 +55,9 @@ jobs:
           });
           core.setOutput('issue-url', issue.data.html_url);
 
-  release:
-    if: github.event.pull_request.merged == true || startsWith(github.ref, 'refs/tags/TP3-V')
+ release:
     runs-on: windows-latest
+    if: github.event.pull_request.merged == true || contains(github.event.head_commit.message, 'TP3-V')
 
     steps:
     - name: Checkout code
