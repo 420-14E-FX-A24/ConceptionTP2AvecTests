@@ -63,7 +63,7 @@ jobs:
 
     - name: Extract short SHA
       id: extract_short_sha
-      run: echo "SHORT_SHA=${GITHUB_SHA:0:7}" >> $GITHUB_ENV
+      run: echo "SHORT_SHA=$(echo $GITHUB_SHA | cut -c1-7)" >> $GITHUB_ENV
 
     - name: Publish project
       run: dotnet publish --configuration Release --output ./publish 14E-TP2-A2024/Automate.csproj
