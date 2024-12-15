@@ -3,10 +3,10 @@ name: main.yml
 on:
   push:
     branches:
-      - '*'  
+      - '*'  # Triggers on any branch push
   pull_request:
     branches:
-      - main
+      - main  # Triggers on PR to main branch
 
 permissions:
   issues: write
@@ -56,23 +56,38 @@ jobs:
           core.setOutput('issue-url', issue.data.html_url);
 
   release:
-    if: github.event.pull_request.merged == true || github.event_name == 'push'
     runs-on: windows-latest
-
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
 
+    - name: Extract tag name
+      id: extract_tag
+      run: echo "::set-output name=TAG_NAME::${GITHUB_REF#refs/tags/}"
+
+    - name: Publish project
+      run: dotnet publish --configuration Release --output ./publish 14E-TP2-A2024/Automate.csproj
+
     - name: Create Release
-      id: create_release
-      uses: actions/create-release@v1
+      uses: ChanTsune/release-with-commit@v3.0.0
+      with:
+        regexp: 'TP3-V.*'
+        release_name: 'Release ${{ github.sha }}'
+        tag_name: 'TP3-V${{ github.sha }}'
+        body: |
+          ## Nouvelle version
+          - Nouvelle remise
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Upload Release Asset
+      uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: TP3-V* 
-        release_name: 'Release v1.0.0'
-        body: |
-          ## Nouvelle version disponible
-          - Remise du TP3
-        draft: false
-        prerelease: false
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./14E-TP2-A2024/bin/Release/net6.0-windows/publish/Automate.exe
+        asset_name: Automate.exe
+        asset_content_type: application/octet-stream
