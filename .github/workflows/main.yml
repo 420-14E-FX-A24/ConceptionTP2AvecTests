@@ -3,10 +3,10 @@ name: main.yml
 on:
   push:
     branches:
-      - '*' 
+      - '*'
   pull_request:
     branches:
-      - main 
+      - main
 
 permissions:
   issues: write
@@ -61,33 +61,38 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Extract tag name
-      id: extract_tag
-      run: echo "::set-output name=TAG_NAME::${GITHUB_REF#refs/tags/}"
+    - name: Extract short SHA
+      id: extract_short_sha
+      run: echo "SHORT_SHA=${GITHUB_SHA::7}" >> $GITHUB_ENV
 
     - name: Publish project
       run: dotnet publish --configuration Release --output ./publish 14E-TP2-A2024/Automate.csproj
 
     - name: Create Release
+      id: create_release
       uses: ChanTsune/release-with-commit@v3.0.0
       with:
         regexp: 'TP3-V.*'
-        release_name: 'Release ${{ github.sha }}'
+        release_name: 'TP3-V${{ env.SHORT_SHA }}'
         tag_name: 'TP3-V${{ github.sha }}'
         body: |
           ## Nouvelle version
           - Nouvelle remise
-        draft: false
-        prerelease: false
       env:
         GITHUB_TOKEN: ${{ secrets.TOKEN }}
+
+    - name: Debug `create_release` outputs
+      run: echo "UPLOAD_URL=${{ steps.create_release.outputs.upload_url }}" >> $GITHUB_ENV
+
+    - name: Print Upload URL
+      run: echo "${{ env.UPLOAD_URL }}"
 
     - name: Upload Release Asset
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.TOKEN }}
       with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        upload_url: ${{ env.UPLOAD_URL }}
         asset_path: ./14E-TP2-A2024/bin/Release/net6.0-windows/publish/Automate.exe
         asset_name: Automate.exe
         asset_content_type: application/octet-stream
