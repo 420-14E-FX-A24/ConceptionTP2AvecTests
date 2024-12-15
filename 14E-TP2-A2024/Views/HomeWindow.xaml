@@ -15,6 +15,7 @@
         ui:WindowHelper.UseModernWindowStyle="True"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes" xmlns:i="http://schemas.microsoft.com/xaml/behaviors">
     <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis" />
         <utils:AlertValueConverter x:Key="AlertValueConverter"/>
         <utils:TypeLegendConverter x:Key="TypeLegendConverter"/>
         <Style x:Key="MaterialDesignCardsListView" TargetType="ListView">
@@ -86,7 +87,7 @@
                     Content="Déconnexion" 
                     Width="145" 
                     Height="43" 
-                    Style="{StaticResource MaterialDesignRaisedLightButton}"
+                    
                     Command="{Binding LogoutCommand}" 
                     RenderTransformOrigin="0.509,1.411"
                     HorizontalAlignment="Right"
@@ -98,9 +99,9 @@
                     Content="Contrôle" 
                     Width="145" 
                     Height="43" 
-                    Style="{StaticResource MaterialDesignRaisedLightButton}"
+                    
                     Command="{Binding ControleCommand}"
-                    IsEnabled="{Binding IsAdmin}"
+                    IsEnabled="{Binding WindowService.IsAdmin}"
                     RenderTransformOrigin="0.509,1.411"
                     HorizontalAlignment="Right"
                     Grid.Column="2"
@@ -137,8 +138,8 @@
                             Width="145" 
                             Height="43" 
                             Margin="0 10" 
-                            IsEnabled="{Binding IsAdmin}"
-                            Style="{StaticResource MaterialDesignRaisedDarkButton}"
+                            IsEnabled="{Binding WindowService.IsAdmin}"
+                            
                             Command="{Binding EditDayTasksCommand}"
                             HorizontalAlignment="Center" RenderTransformOrigin="0.509,1.411"/>
                     </StackPanel>
@@ -174,7 +175,7 @@
                     <StackPanel Orientation="Vertical" Width="auto">
                         <TextBlock Padding="5" Text="Tâches du mois" FontSize="20" Margin="10 9 0 0"/>
                         <ListView 
-                            Height="475"
+                            Height="300"
                             Style="{StaticResource MaterialDesignCardsListView}" 
                             ItemContainerStyle="{StaticResource CustomListViewItemStyle}"
                             x:Name="lvDays" 
@@ -203,6 +204,80 @@
                                 </GridView>
                             </ListView.View>
                         </ListView>
+                        <materialDesign:Card 
+                            Margin="25" 
+                            Padding="16" 
+                            Grid.Row="1" 
+                            Grid.Column="0" 
+                            HorizontalAlignment="Center">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="150" />
+                                    <ColumnDefinition Width="150" />
+                                    <ColumnDefinition Width="150" />
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="50" />
+                                    <RowDefinition Height="50" />
+                                    <RowDefinition Height="50" />
+                                    <RowDefinition Height="50" />
+                                </Grid.RowDefinitions>
+
+
+                                <TextBlock Text="En temps réel." Padding="7" Grid.Column="0" Grid.Row="0"/>
+                                <Button
+                                    Grid.Column="1" Grid.Row="0"
+                                    HorizontalAlignment="Center"
+                                    Width="145" 
+                                    Height="42" 
+                                    
+                                    Command="{Binding ReadMeteoDataCommand}" RenderTransformOrigin="0.509,1.411" 
+                                    Margin="10,0,10,0"
+                                    Content="Lire météo">
+                                </Button>
+                                <Button
+                                    Grid.Column="2" Grid.Row="0"
+                                    HorizontalAlignment="Center"
+                                    Width="145" 
+                                    Height="42" 
+                                    
+                                    Command="{Binding StopReadingMeteoDataCommand}" RenderTransformOrigin="0.509,1.411" 
+                                    Margin="10,0,10,0"
+                                    Content="Arrêter lecture">
+                                </Button>
+
+
+                                <Border BorderBrush="Black" BorderThickness="1,1,0,1" 
+                                    Padding="7" Grid.Column="0" Grid.Row="1">
+                                    <TextBlock Text="Température" Padding="7" />
+                                </Border>
+                                <Border BorderBrush="Black" BorderThickness="0,1,0,1" 
+                                    Padding="7" Grid.Column="1" Grid.Row="1">
+                                    <TextBlock Text="Taux de luminosité" Padding="7" />
+                                </Border>
+                                <Border BorderBrush="Black" BorderThickness="0,1,1,1" 
+                                    Padding="7" Grid.Column="2" Grid.Row="1">
+                                    <TextBlock Text="Taux d'humidité" Padding="7" />
+                                </Border>
+                                <Border BorderBrush="Black" BorderThickness="1,1,1,1" 
+                                    Padding="7" Grid.Column="0" Grid.Row="2">
+                                    <TextBlock Text="{Binding WindowService.TemperatureReelle}" Padding="7"/>
+                                </Border>
+                                <Border BorderBrush="Black" BorderThickness="1,1,1,1" 
+                                    Padding="7" Grid.Column="1" Grid.Row="2">
+                                    <TextBlock Text="{Binding WindowService.LuminositeReelle}" Padding="7" />
+                                </Border>
+                                <Border BorderBrush="Black" BorderThickness="1,1,1,1" 
+                                    Padding="7" Grid.Column="2" Grid.Row="2">
+                                    <TextBlock Text="{Binding WindowService.HumiditeReelle}" Padding="7" />
+                                </Border>
+                                <TextBlock Grid.Column="0" Grid.Row="3" Grid.ColumnSpan="3" 
+                                           Visibility="{Binding WindowService.MeteoDataIsRead, 
+                                            Converter={StaticResource BoolToVis}}" 
+                                           Text="Lecture des données météorologiques, en cours." 
+                                           Padding="7" />
+                            </Grid>
+                        </materialDesign:Card>
                     </StackPanel>
                 </StackPanel>
             </ScrollViewer>

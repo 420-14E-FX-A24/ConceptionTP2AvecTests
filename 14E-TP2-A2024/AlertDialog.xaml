@@ -71,7 +71,7 @@
                 Width="145" 
                 Height="43" 
                 Margin="0 0 25 0" 
-                Style="{StaticResource MaterialDesignRaisedDarkButton}"
+               
                 Command="{Binding CloseDialogCommand}" 
                 HorizontalAlignment="Center" RenderTransformOrigin="0.509,1.411"/>
             </Grid>

@@ -71,7 +71,7 @@
                     Grid.Column="4"
                     Width="50" 
                     Height="50" 
-                    Style="{StaticResource MaterialDesignRaisedDarkButton}"
+                    
                     Command="{Binding ReturnHomeCommand}" RenderTransformOrigin="0.509,1.411" Margin="10,0,0,0">
                     <materialDesign:PackIcon HorizontalAlignment="Center" Kind="Close" Width="60" Height="40" Foreground="white"/>
                 </Button>
@@ -161,7 +161,7 @@
                                             HorizontalAlignment="Right"
                                             Width="50" 
                                             Height="42" 
-                                            Style="{StaticResource MaterialDesignRaisedDarkButton}"
+                                            
                                             Command="{Binding AddTaskCommand}" RenderTransformOrigin="0.509,1.411" 
                                             Margin="10,0,10,0">
                                                 <materialDesign:PackIcon HorizontalAlignment="Center" Kind="Plus" Width="48" Height="20" Foreground="white"/>
@@ -170,7 +170,7 @@
                                             HorizontalAlignment="Right"
                                             Width="50" 
                                             Height="42" 
-                                            Style="{StaticResource MaterialDesignRaisedDarkButton}"
+                                            
                                             Command="{Binding EditTaskCommand}" RenderTransformOrigin="0.509,1.411" 
                                             Margin="10,0,10,0">
                                                 <materialDesign:PackIcon HorizontalAlignment="Center" Kind="ContentSave" Width="48" Height="20" Foreground="white"/>
@@ -179,7 +179,7 @@
                                             HorizontalAlignment="Right"
                                             Width="50" 
                                             Height="42" 
-                                            Style="{StaticResource MaterialDesignRaisedDarkButton}"
+                                            
                                             Command="{Binding RemoveTaskCommand}" RenderTransformOrigin="0.509,1.411" 
                                             Margin="10,0,10,0">
                                                 <materialDesign:PackIcon HorizontalAlignment="Center" Kind="TrashCan" Width="48" Height="20" Foreground="white"/>
