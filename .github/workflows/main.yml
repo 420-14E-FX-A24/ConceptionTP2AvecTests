@@ -69,6 +69,7 @@ jobs:
       run: dotnet publish --configuration Release --output ./publish 14E-TP2-A2024/Automate.csproj
 
     - name: Create Release
+      id: create_release
       uses: ChanTsune/release-with-commit@v3.0.0
       with:
         regexp: 'TP3-V.*'
@@ -80,12 +81,18 @@ jobs:
         draft: false
         prerelease: false
       env:
-        GITHUB_TOKEN: ${{ secrets.TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
+
+    - name: Debug `create_release` outputs
+      run: echo "UPLOAD_URL=${{ steps.create_release.outputs.upload_url }}" >> $GITHUB_ENV
+
+    - name: Print Upload URL
+      run: echo "$UPLOAD_URL"
 
     - name: Upload Release Asset
       uses: actions/upload-release-asset@v1
       env:
-        GITHUB_TOKEN: ${{ secrets.TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
         asset_path: ./14E-TP2-A2024/bin/Release/net6.0-windows/publish/Automate.exe
