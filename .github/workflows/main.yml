@@ -68,6 +68,9 @@ jobs:
     - name: Publish project
       run: dotnet publish --configuration Release --output ./publish 14E-TP2-A2024/Automate.csproj
 
+    - name: List published files
+      run: dir ./14E-TP2-A2024/bin/Release/net6.0-windows/publish
+
     - name: Create Release
       id: create_release
       uses: ChanTsune/release-with-commit@v3.0.0
