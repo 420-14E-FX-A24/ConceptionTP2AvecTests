@@ -68,11 +68,8 @@ jobs:
     - name: Publish project
       run: dotnet publish --configuration Release --output ./publish 14E-TP2-A2024/Automate.csproj
 
-    - name: List all directories
-      run: dir ./14E-TP2-A2024/bin/Release/net6.0-windows
-
     - name: List published files
-      run: dir ./14E-TP2-A2024/bin/Release/net6.0-windows/publish
+      run: dir ./14E-TP2-A2024/bin/Release/net6.0-windows
 
     - name: Create Release
       id: create_release
@@ -102,6 +99,6 @@ jobs:
         UPLOAD_URL: ${{ steps.create_release.outputs.upload_url }}
       with:
         upload_url: ${{ env.UPLOAD_URL }}
-        asset_path: ./14E-TP2-A2024/bin/Release/net6.0-windows/publish/Automate.exe
+        asset_path: ./14E-TP2-A2024/bin/Release/net6.0-windows/Automate.exe
         asset_name: Automate.exe
         asset_content_type: application/octet-stream
