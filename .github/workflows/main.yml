@@ -63,7 +63,9 @@ jobs:
 
     - name: Extract short SHA
       id: extract_short_sha
-      run: echo "SHORT_SHA=${GITHUB_SHA::0:7}" >> $GITHUB_ENV
+      run: |
+        $shortSha = $env:GITHUB_SHA.Substring(0, 7)
+        echo "SHORT_SHA=$shortSha" >> $GITHUB_ENV
 
     - name: Print SHORT_SHA
       run: echo "${{ env.SHORT_SHA }}"
