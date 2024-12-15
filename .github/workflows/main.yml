@@ -63,7 +63,7 @@ jobs:
 
     - name: Extract short SHA
       id: extract_short_sha
-      run: echo "SHORT_SHA=${GITHUB_SHA::7}" >> $GITHUB_ENV
+      run: echo "SHORT_SHA=$(echo $GITHUB_SHA | cut -c1-7)" >> $GITHUB_ENV
 
     - name: Publish project
       run: dotnet publish --configuration Release --output ./publish 14E-TP2-A2024/Automate.csproj
@@ -93,6 +93,7 @@ jobs:
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.TOKEN }}
+        UPLOAD_URL: ${{ steps.create_release.outputs.upload_url }}
       with:
         upload_url: ${{ env.UPLOAD_URL }}
         asset_path: ./14E-TP2-A2024/bin/Release/net6.0-windows/publish/Automate.exe
