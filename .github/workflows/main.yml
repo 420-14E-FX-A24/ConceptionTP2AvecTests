@@ -66,10 +66,10 @@ jobs:
       run: |
         $shortSha = $env:GITHUB_SHA.Substring(0, 7)
         echo "SHORT_SHA=$shortSha" >> $GITHUB_ENV
-        echo "SHORT_SHA=$shortSha"
+        echo "::set-output name=short_sha::$shortSha"
 
     - name: Print SHORT_SHA
-      run: echo "${{ env.SHORT_SHA }}"
+      run: echo "SHORT_SHA:${{ steps.extract_short_sha.outputs.short_sha }}"
 
     - name: Publish project
       run: dotnet publish --configuration Release --output ./publish 14E-TP2-A2024/Automate.csproj
@@ -82,7 +82,7 @@ jobs:
       uses: ChanTsune/release-with-commit@v3.0.0
       with:
         regexp: 'TP3-V.*'
-        release_name: 'TP3-V${{ env.SHORT_SHA }}'
+        release_name: 'TP3-V${{ steps.extract_short_sha.outputs.short_sha }}'
         tag_name: 'TP3-V${{ github.sha }}'
         body: |
           ## Nouvelle version
