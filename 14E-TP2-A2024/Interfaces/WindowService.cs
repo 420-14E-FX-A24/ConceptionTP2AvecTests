@@ -14,9 +14,9 @@ namespace Automate.Interfaces
         void Close();
         void Logout();
 
-        float TemperatureReelle {  get; set; }
-        float LuminositeReelle { get; set; }
-        float HumiditeReelle { get; set; }
+        int TemperatureReelle {  get; set; }
+        int LuminositeReelle { get; set; }
+        int HumiditeReelle { get; set; }
 
         string FileName { get; set; }
 

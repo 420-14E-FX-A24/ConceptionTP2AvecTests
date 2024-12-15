@@ -164,7 +164,7 @@ namespace Automate.Utils
         public (int, int) HumiditeIdeale { get => _humiditeIdeale; }
         private (int, int) _luminositeIdeale = (17391, 26087); //17391, 26087 lux
         public (int, int) LuminositeIdeale { get => _luminositeIdeale; }
-        private void GiveAdviceTomatoParameters(int minValue, int maxValue, ref float accesseurConseil, float accesseurReelle)
+        private void GiveAdviceTomatoParameters(int minValue, int maxValue, ref int accesseurConseil, int accesseurReelle)
         {
 
             if (accesseurReelle < minValue)
@@ -175,8 +175,8 @@ namespace Automate.Utils
                 accesseurConseil = accesseurReelle;
         }
 
-        private float _luminositeConseil;
-        public float LuminositeConseil
+        private int _luminositeConseil;
+        public int LuminositeConseil
         {
             get => _luminositeConseil;
             set
@@ -188,8 +188,8 @@ namespace Automate.Utils
                 }
             }
         }
-        private float _temperatureConseil;
-        public float TemperatureConseil
+        private int _temperatureConseil;
+        public int TemperatureConseil
         {
             get => _temperatureConseil;
             set
@@ -201,8 +201,8 @@ namespace Automate.Utils
                 }
             }
         }
-        private float _humiditeConseil;
-        public float HumiditeConseil
+        private int _humiditeConseil;
+        public int HumiditeConseil
         {
             get => _humiditeConseil;
             set
@@ -216,8 +216,8 @@ namespace Automate.Utils
         }
 
 
-        private float _temperatureReelle;
-        public float TemperatureReelle { 
+        private int _temperatureReelle;
+        public int TemperatureReelle { 
 			get => _temperatureReelle;
 			set
 			{
@@ -225,7 +225,7 @@ namespace Automate.Utils
                 {
                     _temperatureReelle = value;
                     OnPropertyChanged(nameof(TemperatureReelle));
-                    float oldValueConseil = TemperatureConseil;
+                    int oldValueConseil = TemperatureConseil;
                     GiveAdviceTomatoParameters(TemperatureIdeale.Item1, 
                         TemperatureIdeale.Item2, 
                         ref _temperatureConseil, TemperatureReelle);
@@ -235,8 +235,8 @@ namespace Automate.Utils
             } 
 		}
 
-        private float _luminositeReelle;
-        public float LuminositeReelle { 
+        private int _luminositeReelle;
+        public int LuminositeReelle { 
             get => _luminositeReelle;
 			set
 			{
@@ -244,7 +244,7 @@ namespace Automate.Utils
                 {
                     _luminositeReelle = value;
                     OnPropertyChanged(nameof(LuminositeReelle));
-                    float oldValueConseil = LuminositeConseil;
+                    int oldValueConseil = LuminositeConseil;
                     GiveAdviceTomatoParameters(LuminositeIdeale.Item1,
                         LuminositeIdeale.Item2,
                         ref _luminositeConseil, LuminositeReelle);
@@ -254,8 +254,8 @@ namespace Automate.Utils
             }
 		}
 
-        private float _humiditeReelle;
-        public float HumiditeReelle { 
+        private int _humiditeReelle;
+        public int HumiditeReelle { 
             get => _humiditeReelle;
 			set
 			{
@@ -263,7 +263,7 @@ namespace Automate.Utils
                 {
                     _humiditeReelle = value;
                     OnPropertyChanged(nameof(HumiditeReelle));
-                    float oldValueConseil = HumiditeConseil;
+                    int oldValueConseil = HumiditeConseil;
                     GiveAdviceTomatoParameters(HumiditeIdeale.Item1,
                         HumiditeIdeale.Item2,
                         ref _humiditeConseil, HumiditeReelle);
@@ -370,7 +370,7 @@ namespace Automate.Utils
             int nbLines = FileData.Count;
             int currentLineIndex = 0;
             string[] currentLineData;
-            float? parameter;
+            int? parameter;
             while (MeteoDataIsRead)
             {
                 if (currentLineIndex == nbLines)
@@ -378,7 +378,7 @@ namespace Automate.Utils
                 currentLineData = FileData[currentLineIndex];
                 for (int i = 1; i < currentLineData.Length; i++)
                 {
-                    parameter = ParseStringFloat(currentLineData[i]);
+                    parameter = ParseStringInt(currentLineData[i]);
                     if (parameter.HasValue)
                     {
                         if (i == 1)
@@ -402,20 +402,12 @@ namespace Automate.Utils
             }
         }
 
-        private float? ParseStringFloat(string parameter)
+        private int? ParseStringInt(string parameter)
         {
-            float result;
-            if (float.TryParse(parameter, out result))
+            if (int.TryParse(parameter, out int result))
                 return result;
-            else if (int.TryParse(parameter, out int intResult))
-            {
-                result = intResult;
-                return result;
-            }
             return null;
         }
-
-      
     }
 
     
