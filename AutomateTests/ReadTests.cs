@@ -22,8 +22,6 @@ namespace Automate.Tests
         public void SetUp()
         {
             _windowServiceMock = new Mock<IWindowService>();
-
-            // Mock the OpenRead method
             string fileContent = "DateTime,Température (°C),Humidité (%),Luminosité (lux)\n" +
                                  "2023-10-01 00:00,18,70,5\n" +
                                  "2023-10-01 01:00,17,72,5\n" +
@@ -33,10 +31,7 @@ namespace Automate.Tests
                                  "2023-10-01 05:00,16,74,10";
             var encoding = Encoding.GetEncoding("iso-8859-1");
             var fileStream = new MemoryStream(encoding.GetBytes(fileContent));
-
             _windowServiceMock.Setup(ws => ws.OpenRead(It.IsAny<string>())).Returns(fileStream);
-
-            // Create the WindowServiceWrapper instance with the mock
             _windowServiceWrapper = new WindowServiceWrapper(null, null, null, _windowServiceMock.Object);
         }
 
