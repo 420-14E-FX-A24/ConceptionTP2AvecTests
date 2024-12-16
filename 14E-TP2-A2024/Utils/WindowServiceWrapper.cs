@@ -11,6 +11,8 @@ using System.Windows;
 using System.Threading.Tasks;
 using System.Text;
 using System.Threading;
+using SharpCompress.Common;
+using SharpCompress.Compressors.Xz;
 
 
 namespace Automate.Utils
@@ -23,7 +25,7 @@ namespace Automate.Utils
         private NavigationService _navigationService;
         public Dictionary<int, string[]> FileData { get; set; } = new Dictionary<int, string[]>();
         public int MeteoChangeDelay { get; set; } = 10;
-
+        public bool FileIsLoading { get; set; } = false;
         public string FileName { get; set; }
         private CancellationTokenSource _cancellationTokenSource;
         public event PropertyChangedEventHandler? PropertyChanged;
@@ -33,11 +35,15 @@ namespace Automate.Utils
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        private WindowServiceWrapper(object viewModel, Window window, NavigationService navigationService)
+        public WindowServiceWrapper(object viewModel = null, Window window = null, NavigationService navigationService = null, IWindowService windowService = null)
         {
             _viewModel = viewModel;
             _window = window;
             _navigationService = navigationService;
+            if (windowService != null)
+                _sharedSingleton = windowService;
+            else
+                _sharedSingleton = (IWindowService)this;
         }
 
         public static IWindowService GetInstance(object viewModel, Window window, NavigationService navigationService)
@@ -311,6 +317,20 @@ namespace Automate.Utils
             _sharedSingleton = null;
         }
 
+        public Stream? OpenRead(string path)
+        {
+            Stream? stream = null;
+            if (!FileIsLoading)
+            {
+                FileIsLoading = true;
+                if(_sharedSingleton is WindowServiceWrapper)
+                    stream = new FileStream(path, FileMode.Open, FileAccess.Read);
+                else
+                    stream = _sharedSingleton.OpenRead(path);
+                return stream;
+            }
+            return stream;
+        }
 
         public void LoadFile(string fileName)
         {
@@ -318,25 +338,27 @@ namespace Automate.Utils
             string filePath = Path.Combine(binPath, fileName);
             var encoding = Encoding.GetEncoding("iso-8859-1");
 
-            using (var fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
-            using (var reader = new StreamReader(fileStream, encoding))
+            using (var fileStream = OpenRead(filePath))
             {
-                var lines = new List<string>();
-                string line;
-                while ((line = reader.ReadLine()) != null)
-                {
-                    lines.Add(line);
-                }
-                var data = lines.Skip(1).Select(l => l.Split(',')).ToList();
-                var headers = lines.First().Split(',');
+                if (fileStream is null)
+                    return;
 
-                for (int i = 0; i < data.Count; i++)
+                using (var reader = new StreamReader(fileStream, encoding))
                 {
-                    AddLineToFileData(i, data[i]);
+                    var lines = new List<string>();
+                    string line;
+                    while ((line = reader.ReadLine()) != null)
+                    {
+                        lines.Add(line);
+                    }
+                    var data = lines.Skip(1).Select(l => l.Split(',')).ToList();
+                    for (int i = 0; i < data.Count; i++)
+                    {
+                        AddLineToFileData(i, data[i]);
+                    }
                 }
             }
-
-
+            FileIsLoading = false;
         }
 
         public void AddLineToFileData(int index, string[] line)
