@@ -59,6 +59,7 @@ namespace Automate.ViewModels
             LogoutCommand = new RelayCommand(Logout);
             ReadMeteoDataCommand = new RelayCommand(ReadMeteoData);
             StopReadingMeteoDataCommand = new RelayCommand(StopReadingMeteoData);
+
             if (openedWindow is not null)
 				ShowDayTasks();
 		}
