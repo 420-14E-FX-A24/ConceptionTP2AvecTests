@@ -7,6 +7,7 @@ using ModernWpf.Controls;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Data.Common;
 using System.Linq;
@@ -26,8 +27,12 @@ namespace Automate.ViewModels
         private readonly NavigationService _navigationService;
         private readonly MongoDBService _mongoService;
         private static IWindowService? _windowService;
-        
-        public ICommand SaveCommand { get; }
+        private readonly int[] DefaultDayMinRangeValues = new int[] { 20, 40000, 60 };
+		private readonly int[] DefaultDayMaxRangeValues = new int[] { 28, 70000, 85 };
+        private readonly int[] DefaultNightMinRangeValues = new int[] { 15, 0, 65 };
+		private readonly int[] DefaultNightMaxRangeValues = new int[] { 18, 5000, 75 };
+
+		public ICommand SaveCommand { get; }
         public ICommand LogoutCommand { get; }
         public ICommand ReadMeteoDataCommand { get; }
         public ICommand StopReadingMeteoDataCommand { get; }
@@ -78,8 +83,13 @@ namespace Automate.ViewModels
             ActionArrosageCommand = new RelayCommand(ActionArrosage);
             ActionChauffageCommand = new RelayCommand(ActionChauffage);
             ActionVentilateurCommand = new RelayCommand(ActionVentilateur);
-           
-        }
+
+			if (openedWindow is not null)
+			{
+				GetClimateSystems();
+				GetClimateConditions();
+			}
+		}
 
         
 
@@ -314,6 +324,81 @@ namespace Automate.ViewModels
             }
         }
 
+		private ObservableCollection<ClimateSystem> _climateSystems;
+		public ObservableCollection<ClimateSystem> ClimateSystems
+		{
+			get => _climateSystems;
+			set
+			{
+				_climateSystems = value;
+				OnPropertyChanged(nameof(ClimateSystems));
+			}
+		}
+
+		private ObservableCollection<ClimateCondition> _climateConditions;
+		public ObservableCollection<ClimateCondition> ClimateConditions
+		{
+			get => _climateConditions;
+			set
+			{
+				_climateConditions = value;
+				OnPropertyChanged(nameof(ClimateConditions));
+			}
+		}
+
+		public void GetClimateSystems()
+		{
+			var systems = _mongoService.GetClimateSystems();
+
+			if (systems == null || systems.Count == 0)
+			{
+				ClimateSystems = new ObservableCollection<ClimateSystem>
+				{
+					new ClimateSystem(ClimateSystem.SystemTypes.Light),
+					new ClimateSystem(ClimateSystem.SystemTypes.Windows),
+					new ClimateSystem(ClimateSystem.SystemTypes.Watering),
+					new ClimateSystem(ClimateSystem.SystemTypes.Fan),
+					new ClimateSystem(ClimateSystem.SystemTypes.Heat)
+				};
+
+				foreach (var climateSystem in ClimateSystems)
+				{
+					SaveClimateSystem(climateSystem);
+				}
+			}
+			else
+				ClimateSystems = systems;
+		}
+
+		public void SaveClimateSystem(ClimateSystem climateSystem)
+		{
+			_mongoService.SaveClimateSystem(climateSystem);
+		}
+
+		public void GetClimateConditions()
+		{
+			var conditions = _mongoService.GetClimateConditions();
+
+			if (conditions == null || conditions.Count == 0)
+			{
+				ClimateConditions = new ObservableCollection<ClimateCondition>
+				{
+					new ClimateCondition(ClimateCondition.ConditionTypes.Temperature, DefaultDayMinRangeValues[0], DefaultDayMaxRangeValues[0], true),
+					new ClimateCondition(ClimateCondition.ConditionTypes.Temperature, DefaultNightMinRangeValues[0], DefaultNightMaxRangeValues[0], false),
+					new ClimateCondition(ClimateCondition.ConditionTypes.Luminosity, DefaultDayMinRangeValues[1], DefaultDayMaxRangeValues[1], true),
+					new ClimateCondition(ClimateCondition.ConditionTypes.Luminosity, DefaultNightMinRangeValues[1], DefaultNightMaxRangeValues[1], false),
+					new ClimateCondition(ClimateCondition.ConditionTypes.Humidity, DefaultDayMinRangeValues[2], DefaultDayMaxRangeValues[2], true),
+					new ClimateCondition(ClimateCondition.ConditionTypes.Humidity, DefaultNightMinRangeValues[2], DefaultNightMaxRangeValues[2], false)
+				};
+
+				foreach (var climateCondition in ClimateConditions)
+				{
+					SaveClimateCondition(climateCondition);
+				}
+			}
+			else
+				ClimateConditions = conditions;
+		}
 
         protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
         {
@@ -328,6 +413,11 @@ namespace Automate.ViewModels
                 fullPropertyName = "WindowService." + propertyName;
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(fullPropertyName));
         }
+
+		public void SaveClimateCondition(ClimateCondition climateCondition)
+		{
+			_mongoService.SaveClimateCondition(climateCondition);
+		}
 
         private void WindowServiceWrapper_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
