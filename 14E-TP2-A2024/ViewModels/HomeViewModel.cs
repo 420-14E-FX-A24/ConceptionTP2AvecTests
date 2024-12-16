@@ -23,51 +23,111 @@ namespace Automate.ViewModels
 		public ICommand ShowDayTasksCommand { get; }
 		public ICommand EditDayTasksCommand { get; }
 		public ICommand CloseDialogCommand { get; }
-		public ICommand ControleCommand { get; }
-		public RelayCommand ShowDialogCommand { get; }
+        public ICommand ControleCommand { get; }
+        public ICommand ReadMeteoDataCommand { get; }
+        public ICommand StopReadingMeteoDataCommand { get; }
+        public RelayCommand ShowDialogCommand { get; }
 		public RelayCommand LogoutCommand { get; }
-		public RelayCommand GetUnitValuesCommand { get; }
 
 		public event PropertyChangedEventHandler? PropertyChanged;
-		private readonly NavigationService _navigationService;
+
+        private void WindowServiceWrapper_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            // Notify that a property has changed
+            OnPropertyChanged(e.PropertyName);
+        }
+
+        private readonly NavigationService _navigationService;
 		private readonly MongoDBService _mongoService;
 		private static IWindowService? _windowService;
 
-		public HomeViewModel(Window openedWindow)
+        public HomeViewModel(Window openedWindow)
 		{
 			if (_mongoService is null)
 				_mongoService = new MongoDBService("AutomateDB");
 
-			_navigationService = new NavigationService();
+            _navigationService = new NavigationService();
+            Window = openedWindow;
+            if (_windowService is null)
+				InitialiserWindowService();
 
-			if (_windowService is null)
-				_windowService = WindowServiceWrapper.GetInstance(this, openedWindow, _navigationService);
-
-			ShowDayTasksCommand = new RelayCommand(ShowDayTasks);
+            ShowDayTasksCommand = new RelayCommand(ShowDayTasks);
 			EditDayTasksCommand = new RelayCommand(EditDayTasks);
 			ShowDialogCommand = new RelayCommand(ShowDialog);
 			CloseDialogCommand = new RelayCommand(CloseDialog);
 			ControleCommand = new RelayCommand(NaviguerControle);
-			LogoutCommand = new RelayCommand(Logout);
-
-			Window = openedWindow;
-
-			if (openedWindow is not null)
+            LogoutCommand = new RelayCommand(Logout);
+            ReadMeteoDataCommand = new RelayCommand(ReadMeteoData);
+            StopReadingMeteoDataCommand = new RelayCommand(StopReadingMeteoData);
+            if (openedWindow is not null)
 				ShowDayTasks();
 		}
 
-		private bool _isAdmin;
+        private void ReadMeteoData()
+        {
+            WindowService.FileName = "TempData(corrige).txt";
+            if (!WindowService.MeteoDataIsRead)
+            {
+                WindowService.MeteoDataIsRead = true;
+                WindowService.ReadMeteoData();
+            }
+            else
+                MessageBox.Show("Lecture des données en cours. " +
+                    "Appuyer sur le bouton Arrêter la lecture. " +
+                    "Ensuite, vous pourrez réessayer.",
+                    "Lecture de la météo.",
+                    MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+
+        private void StopReadingMeteoData()
+        {
+            WindowService.MeteoDataIsRead = false;
+        }
+
+        private void InitialiserWindowService()
+		{
+            _windowService = WindowServiceWrapper.GetInstance(this, Window, _navigationService);
+            if (_windowService is INotifyPropertyChanged notifyPropertyChanged)
+            {
+                notifyPropertyChanged.PropertyChanged += WindowServiceWrapper_PropertyChanged;
+            }
+        }
+
+        private void NaviguerControle(object obj)
+        {
+			if (IsAdmin)
+			{
+                _navigationService.NavigateTo<FarmingWindow>(null, IsAdmin);
+                _navigationService.Close(Window);
+            }
+				
+        }
+
+        public WindowServiceWrapper WindowService
+        {
+            get => (WindowServiceWrapper)_windowService;
+            set
+            {
+                if (_windowService != value)
+                {
+                    _windowService = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private bool _isAdmin;
 		public bool IsAdmin
 		{
-			get => _isAdmin;
+			get => WindowService.IsAdmin;
 			set
 			{
 				if (_isAdmin != value)
 				{
 					_isAdmin = value;
-					_windowService.IsAdmin = value;
+					WindowService.IsAdmin = value;
 				}
-				OnPropertyChanged(nameof(IsAdmin));
+				OnPropertyChanged(nameof(WindowService.IsAdmin));
 			}
 		}
 
@@ -166,15 +226,22 @@ namespace Automate.ViewModels
 			var dialogContent = new AlertDialog();
 			try
 			{
-				Application.Current.Dispatcher.Invoke(async () =>
-				{
-					if (Window is not null)
-					{
-						await System.Threading.Tasks.Task.Delay(100);
-						DialogHost.Show(dialogContent, "Alertes");
-					}
-				});
-			}
+                if (Application.Current != null)
+                {
+                    Application.Current.Dispatcher.Invoke(async () =>
+                    {
+                        if (Window is not null)
+                        {
+                            await System.Threading.Tasks.Task.Delay(100);
+                            DialogHost.Show(dialogContent, "Alertes");
+                        }
+                    });
+                }
+                else
+                {
+                    Debug.WriteLine("Application.Current is null.");
+                }
+            }
 			catch (InvalidOperationException ex)
 			{
 				Debug.WriteLine($"InvalidOperationException11: {ex.Message}");
@@ -190,37 +257,22 @@ namespace Automate.ViewModels
 			DialogHost.Close("Alertes", null);
 		}
 
-		private void NaviguerControle(object obj)
-		{
-			if (IsAdmin)
-			{
-				_navigationService.NavigateTo<FarmingWindow>(null, IsAdmin);
-				_navigationService.Close(Window);
-			}
-
-		}
-
-		public void Logout()
-		{
-			IsAdmin = false;
-			Window.DataContext = null;
-			_windowService = null;
-
-			_navigationService.NavigateTo<LoginWindow>();
-
-			foreach (Window window in Application.Current.Windows)
-			{
-				if (window.Name == "EditDayTasksView" || window.Name == "HomeView")
-				{
-					window.Close();
-					break;
-				}
-			}
-		}
+        private void Logout()
+        {
+            if (_windowService is not null)
+                _windowService.Logout();
+        }
+        
 
 		protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
 		{
-			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-		}
+			string fullPropertyName = propertyName;
+
+            if (propertyName == "TemperatureReelle" 
+				|| propertyName == "HumiditeReelle" 
+				|| propertyName == "LuminositeReelle")
+                fullPropertyName = "WindowService." + propertyName;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(fullPropertyName));
+        }
 	}
 }

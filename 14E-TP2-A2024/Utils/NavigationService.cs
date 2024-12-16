@@ -1,9 +1,11 @@
-﻿using Automate.ViewModels;
+﻿using Automate.Interfaces;
+using Automate.ViewModels;
+using System.Diagnostics;
 using System.Windows;
 
 namespace Automate.Utils
 {
-    public class NavigationService
+    public class NavigationService: INavigationService
     {
         public void NavigateTo<T>(object dataContext = null, bool isAdmin = false) where T : Window, new()
         {
@@ -12,13 +14,31 @@ namespace Automate.Utils
                 window.DataContext = dataContext;
             window.Show();
            
-            if (window.DataContext is HomeViewModel viewModel)
-                viewModel.IsAdmin = isAdmin;
+            if (window.DataContext is Automate.ViewModels.HomeViewModel)
+                ((Automate.ViewModels.HomeViewModel)window.DataContext).IsAdmin = isAdmin;
         }
 
         public void Close(Window window)
         {
-            window.Close();
+            if(window is not null)
+                window.Close();
+            else
+            {
+                Debug.WriteLine("window a été nulle");
+            }
+               
+        }
+
+        public void CloseWindow(string windowName)
+        {
+            foreach (Window window in Application.Current.Windows)
+            {
+                if (window.Name == windowName)
+                {
+                    window.Close();
+                    break;
+                }
+            }
         }
     }
 

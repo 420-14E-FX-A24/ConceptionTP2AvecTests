@@ -1,13 +1,17 @@
 ﻿using Automate.Interfaces;
 using Automate.Models;
 using Automate.Utils;
+using Automate.Views;
 using Microsoft.Xaml.Behaviors;
 using ModernWpf.Controls;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Data.Common;
 using System.Linq;
+using System.Reflection.Metadata;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
@@ -30,6 +34,9 @@ namespace Automate.ViewModels
 
 		public ICommand SaveCommand { get; }
         public ICommand LogoutCommand { get; }
+        public ICommand ReadMeteoDataCommand { get; }
+        public ICommand StopReadingMeteoDataCommand { get; }
+        public ICommand ReturnToHomeCommand { get; }
         public ICommand ActionEclairageCommand { get; }
         public ICommand ActionFenetreCommand { get; }
         public ICommand ActionArrosageCommand { get; }
@@ -42,40 +49,66 @@ namespace Automate.ViewModels
         private float _temperatureControlleA;
         private float _luminositeControlleA;
         private float _humiditeControlleA;
-        private float _temperatureReelle;
-        private float _luminositeReelle;
-        private float _humiditeReelle;
-
+        private float _temperatureConseil;
+        private float _luminositeConseil;
+        private float _humiditeConseil;
         private bool _isActionVentilateur;
         private bool _isActionChauffage;
         private bool _isActionArrosage;
         private bool _isActionFenetre;
         private bool _isActionEclairage;
 
+       
+
         public event PropertyChangedEventHandler? PropertyChanged;
-        protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
+
 
         public FarmingControlsViewModel(Window openedWindow)
         {
-            _navigationService = new NavigationService();
             if (_mongoService is null)
                 _mongoService = new MongoDBService("AutomateDB");
 
-            if (_windowService is null)
-                _windowService = WindowServiceWrapper.GetInstance(this, openedWindow, _navigationService);
-
+            _navigationService = new NavigationService();
             Window = openedWindow;
+            if (_windowService is null)
+                InitialiserWindowService();
 
             SaveCommand = new RelayCommand(SaveValueClimatiques);
             LogoutCommand = new RelayCommand(Logout);
+            ReadMeteoDataCommand = new RelayCommand(ReadMeteoData);
+            StopReadingMeteoDataCommand = new RelayCommand(StopReadingMeteoData);
+            ReturnToHomeCommand = new RelayCommand(ReturnToHome);
             ActionEclairageCommand = new RelayCommand(ActionEclairage);
             ActionFenetreCommand = new RelayCommand(ActionFenetre);
             ActionArrosageCommand = new RelayCommand(ActionArrosage);
             ActionChauffageCommand = new RelayCommand(ActionChauffage);
             ActionVentilateurCommand = new RelayCommand(ActionVentilateur);
+           
+        }
+
+        
+
+        private void ReturnToHome(object obj)
+        {
+            _navigationService.NavigateTo<HomeWindow>(null, WindowService.IsAdmin);
+            _navigationService.Close(Window);
+        }
+
+        private void ReadMeteoData()
+        {
+            WindowService.FileName = "TempData(corrige).txt";
+            if (!WindowService.MeteoDataIsRead)
+            {
+                WindowService.MeteoDataIsRead = true;
+                WindowService.ReadMeteoData();
+            }
+            else
+                MessageBox.Show("Lecture des données en cours. " +
+                    "Appuyer sur le bouton Arrêter la lecture. " +
+                    "Ensuite, vous pourrez réessayer.",
+                    "Lecture de la météo.",
+                    MessageBoxButton.OK, MessageBoxImage.Information);
+        }
 
 			if (openedWindow is not null)
             {
@@ -83,7 +116,19 @@ namespace Automate.ViewModels
 				GetClimateConditions();
 			}
 
-		}
+        private void StopReadingMeteoData()
+        {
+            WindowService.MeteoDataIsRead = false;
+        }
+
+        private void InitialiserWindowService()
+        {
+            _windowService = WindowServiceWrapper.GetInstance(this, Window, _navigationService);
+            if (_windowService is INotifyPropertyChanged notifyPropertyChanged)
+            {
+                notifyPropertyChanged.PropertyChanged += WindowServiceWrapper_PropertyChanged;
+            }
+        }
 
         private void ActionVentilateur(object obj)
         {
@@ -119,6 +164,19 @@ namespace Automate.ViewModels
         {
             if(_windowService is not null)
                 _windowService.Logout();
+        }
+
+        public WindowServiceWrapper WindowService
+        {
+            get => (WindowServiceWrapper)_windowService;
+            set
+            {
+                if (_windowService != value)
+                {
+                    _windowService = value;
+                    OnPropertyChanged();
+                }
+            }
         }
 
         public bool IsActionVentilateur
@@ -214,19 +272,6 @@ namespace Automate.ViewModels
             }
         }
 
-        public float TemperatureReelle
-        {
-            get => _temperatureReelle;
-            set
-            {
-                if (_temperatureReelle != value)
-                {
-                    _temperatureReelle = value;
-                    OnPropertyChanged(nameof(TemperatureReelle));
-                }
-            }
-        }
-
         public float LuminositeControlleDe
         {
             get => _luminositeControlleDe;
@@ -253,18 +298,6 @@ namespace Automate.ViewModels
             }
         }
 
-        public float LuminositeReelle
-        {
-            get => _luminositeReelle;
-            set
-            {
-                if (_luminositeReelle != value)
-                {
-                    _luminositeReelle = value;
-                    OnPropertyChanged(nameof(LuminositeReelle));
-                }
-            }
-        }
 
         public float HumiditeControlleDe
         {
@@ -381,10 +414,29 @@ namespace Automate.ViewModels
 				ClimateConditions = conditions;
 		}
 
+        protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+        {
+            string fullPropertyName = propertyName;
+
+            if (propertyName == "TemperatureReelle"
+                || propertyName == "HumiditeReelle"
+                || propertyName == "LuminositeReelle"
+                || propertyName == "TemperatureConseil"
+                || propertyName == "HumiditeConseil"
+                || propertyName == "LuminositeConseil")
+                fullPropertyName = "WindowService." + propertyName;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(fullPropertyName));
+        }
+
 		public void SaveClimateCondition(ClimateCondition climateCondition)
 		{
 			_mongoService.SaveClimateCondition(climateCondition);
 		}
 
 	}
+        private void WindowServiceWrapper_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            OnPropertyChanged(e.PropertyName);
+        }
+    }
 }
