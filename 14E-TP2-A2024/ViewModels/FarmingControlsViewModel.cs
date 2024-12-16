@@ -83,8 +83,13 @@ namespace Automate.ViewModels
             ActionArrosageCommand = new RelayCommand(ActionArrosage);
             ActionChauffageCommand = new RelayCommand(ActionChauffage);
             ActionVentilateurCommand = new RelayCommand(ActionVentilateur);
-           
-        }
+
+			if (openedWindow is not null)
+			{
+				GetClimateSystems();
+				GetClimateConditions();
+			}
+		}
 
         
 
@@ -109,12 +114,6 @@ namespace Automate.ViewModels
                     "Lecture de la météo.",
                     MessageBoxButton.OK, MessageBoxImage.Information);
         }
-
-			if (openedWindow is not null)
-            {
-				GetClimateSystems();
-				GetClimateConditions();
-			}
 
         private void StopReadingMeteoData()
         {
@@ -325,19 +324,6 @@ namespace Automate.ViewModels
             }
         }
 
-        public float HumiditeReelle
-        {
-            get => _humiditeReelle;
-            set
-            {
-                if (_humiditeReelle != value)
-                {
-                    _humiditeReelle = value;
-                    OnPropertyChanged(nameof(HumiditeReelle));
-                }
-            }
-        }
-
 		private ObservableCollection<ClimateSystem> _climateSystems;
 		public ObservableCollection<ClimateSystem> ClimateSystems
 		{
@@ -433,7 +419,6 @@ namespace Automate.ViewModels
 			_mongoService.SaveClimateCondition(climateCondition);
 		}
 
-	}
         private void WindowServiceWrapper_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             OnPropertyChanged(e.PropertyName);
