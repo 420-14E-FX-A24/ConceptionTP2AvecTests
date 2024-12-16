@@ -33,5 +33,8 @@ namespace Automate.Interfaces
 
         bool FileIsLoading { get; set; }
 
+        string GiveAdviceTomatoParameters(int minValue, int maxValue, ref string accesseurConseil,
+            int accesseurReelle, string propertyName);
+
     }
 }

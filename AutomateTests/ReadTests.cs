@@ -16,7 +16,9 @@ namespace Automate.Tests
     {
         private Mock<IWindowService> _windowServiceMock;
         private WindowServiceWrapper _windowServiceWrapper;
-
+        private (int, int) _temperatureIdeale = (13, 29); // 55 and 85 degrees Fahrenheit
+        private (int, int) _humiditeIdeale = (65, 85); // 65 and 85% humidity
+        private (int, int) _luminositeIdeale = (17391, 26087); // 17391, 26087 lux
 
         [SetUp]
         public void SetUp()
@@ -61,6 +63,73 @@ namespace Automate.Tests
             { "2023-10-01 04:00", "16", "76", "5" }));
             Assert.That(_windowServiceWrapper.FileData[5], Is.EqualTo(new[] 
             { "2023-10-01 05:00", "16", "74", "10" }));
+        }
+
+
+        [Test]
+        public void GiveAdviceTomatoParameters_TemperatureInferieureMinValue()
+        {
+            string accesseurConseil = string.Empty;
+            int accesseurReelle = 10;
+            string propertyName = "Temperature";
+            string result = _windowServiceWrapper.GiveAdviceTomatoParameters(_temperatureIdeale.Item1, 
+                _temperatureIdeale.Item2, ref accesseurConseil, accesseurReelle, propertyName);
+            Assert.That(result, Is.EqualTo("fermer fenêtres, ouvrir chauffage, fermer ventilateurs"));
+        }
+
+        [Test]
+        public void GiveAdviceTomatoParameters_TemperatureSuperieureMaxValue()
+        {
+            string accesseurConseil = string.Empty;
+            int accesseurReelle = 30;
+            string propertyName = "Temperature";
+            string result = _windowServiceWrapper.GiveAdviceTomatoParameters(_temperatureIdeale.Item1, 
+                _temperatureIdeale.Item2, ref accesseurConseil, accesseurReelle, propertyName);
+            Assert.That(result, Is.EqualTo("ouvrir fenêtres, fermer chauffage, ouvrir ventilateurs, ouvrir arrosage"));
+        }
+
+        [Test]
+        public void GiveAdviceTomatoParameters_HumiditeInferieureMinValue()
+        {
+            string accesseurConseil = string.Empty;
+            int accesseurReelle = 60;
+            string propertyName = "Humidite";
+            string result = _windowServiceWrapper.GiveAdviceTomatoParameters(_humiditeIdeale.Item1, 
+                _humiditeIdeale.Item2, ref accesseurConseil, accesseurReelle, propertyName);
+            Assert.That(result, Is.EqualTo("fermer fenêtres, fermer chauffage, fermer ventilateurs, ouvrir arrosage"));
+        }
+
+        [Test]
+        public void GiveAdviceTomatoParameters_HumiditeSuperieurMaxValue()
+        {
+            string accesseurConseil = string.Empty;
+            int accesseurReelle = 90;
+            string propertyName = "Humidite";
+            string result = _windowServiceWrapper.GiveAdviceTomatoParameters(_humiditeIdeale.Item1, 
+                _humiditeIdeale.Item2, ref accesseurConseil, accesseurReelle, propertyName);
+            Assert.That(result, Is.EqualTo("ouvrir fenêtres, ouvrir chauffage, ouvrir ventilateurs, fermer arrosage"));
+        }
+
+        [Test]
+        public void GiveAdviceTomatoParameters_LuminositeInferieurMinValue()
+        {
+            string accesseurConseil = string.Empty;
+            int accesseurReelle = 15000;
+            string propertyName = "Luminosite";
+            string result = _windowServiceWrapper.GiveAdviceTomatoParameters(_luminositeIdeale.Item1, 
+                _luminositeIdeale.Item2, ref accesseurConseil, accesseurReelle, propertyName);
+            Assert.That(result, Is.EqualTo("fermer fenêtres, ouvrir lumières"));
+        }
+
+        [Test]
+        public void GiveAdviceTomatoParameters_LuminositeSuperieurMaxValue()
+        {
+            string accesseurConseil = string.Empty;
+            int accesseurReelle = 27000;
+            string propertyName = "Luminosite";
+            string result = _windowServiceWrapper.GiveAdviceTomatoParameters(_luminositeIdeale.Item1, 
+                _luminositeIdeale.Item2, ref accesseurConseil, accesseurReelle, propertyName);
+            Assert.That(result, Is.EqualTo("ouvrir fenêtres, fermer lumières"));
         }
     }
 }

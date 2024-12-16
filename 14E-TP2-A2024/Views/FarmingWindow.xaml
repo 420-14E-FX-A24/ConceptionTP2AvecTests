@@ -37,6 +37,7 @@
     </Window.Resources>
     
     <Grid>
+        
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="*" />
@@ -114,16 +115,18 @@
             </Grid>
         </Border>
         
-        <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Vertical" Grid.ColumnSpan="2" HorizontalAlignment="Center" >
+            <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Vertical" Grid.ColumnSpan="2" HorizontalAlignment="Center" >
             
-            <TextBlock Padding="5" VerticalAlignment="Top" Text="Serre Automate" 
+                <TextBlock Padding="5" VerticalAlignment="Top" Text="Serre Automate" 
                        FontSize="24" Margin="5" Grid.Column="1" Grid.Row="1"/>
-            <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Horizontal" Grid.ColumnSpan="2">
-            <materialDesign:Card Padding="16" Margin="16" Grid.Column="0" Grid.Row="1" Width="500">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Horizontal" Grid.ColumnSpan="2"   Height="600">
+
+                    <materialDesign:Card Padding="16" Margin="16" Grid.Column="0" Grid.Row="1" Width="500">
                     <materialDesign:Card.LayoutTransform>
                         <ScaleTransform ScaleX="1" ScaleY="1" />
                     </materialDesign:Card.LayoutTransform>
-                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
                        
                     <StackPanel>
                         <StackPanel Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="2">
@@ -355,8 +358,9 @@
 
               </ScrollViewer>
             </materialDesign:Card>
-            <materialDesign:Card Padding="16" Margin="16" Grid.Column="1" Grid.Row="1" Width="650">
-                    <StackPanel>
+            <materialDesign:Card Padding="16" Margin="16" Grid.Column="1" Grid.Row="1" Width="700">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <StackPanel>
                         <StackPanel Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="2">
                                 <TextBlock Padding="10" Background="White"  
                                            VerticalAlignment="Top" Text="Système climatiques." 
@@ -367,17 +371,17 @@
                         <Grid HorizontalAlignment="Center">
                           
                             <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="100" />
                                 <ColumnDefinition Width="150" />
                                 <ColumnDefinition Width="150" />
-                                <ColumnDefinition Width="150" />
-                                <ColumnDefinition Width="150" />
+                                <ColumnDefinition Width="225" />
                             </Grid.ColumnDefinitions>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="50" />
                                 <RowDefinition Height="50" />
-                                <RowDefinition Height="50" />
-                                <RowDefinition Height="50" />
-                                <RowDefinition Height="50" />
+                                <RowDefinition Height="100" />
+                                <RowDefinition Height="100" />
+                                <RowDefinition Height="100" />
                                 <RowDefinition Height="50" />
                                 <RowDefinition Height="50" />
                                 <RowDefinition Height="50" />
@@ -406,51 +410,66 @@
                             </Border>
                             <Border BorderBrush="Black" BorderThickness="0,1,0,1" 
                                     Padding="7" Grid.Column="1" Grid.Row="1">
-                                <TextBlock Text="De" Padding="7" TextAlignment="Center"/>
+                                <TextBlock Text="Min" Padding="7" TextAlignment="Center"/>
                             </Border>
                             <Border BorderBrush="Black" BorderThickness="1,1,1,0" 
                                     Padding="7" Grid.Column="1" Grid.Row="2">
-                                <TextBox Text="{Binding TemperatureControlleDe, Mode=TwoWay}" Padding="7" />
+                                <TextBox Text="{Binding WindowService.TemperatureControlleDe, Mode=TwoWay}" Padding="7" />
                             </Border>
                             <Border BorderBrush="Black" BorderThickness="1,0,1,0" 
                                     Padding="7" Grid.Column="1" Grid.Row="3">
-                                <TextBox Text="{Binding LuminositeControlleDe, Mode=TwoWay}" Padding="7" />
+                                <TextBox Text="{Binding WindowService.LuminositeControlleDe, Mode=TwoWay}" Padding="7" />
                             </Border>
                             <Border BorderBrush="Black" BorderThickness="1,0,1,1" 
                                     Padding="7" Grid.Column="1" Grid.Row="4">
-                                <TextBox Text="{Binding HumiditeControlleDe, Mode=TwoWay}" Padding="7" />
+                                <TextBox Text="{Binding WindowService.HumiditeControlleDe, Mode=TwoWay}" Padding="7" />
                             </Border>
                             <Border BorderBrush="Black" BorderThickness="0,1,1,1" 
                                     Padding="7" Grid.Column="2" Grid.Row="1">
-                                <TextBlock Text="À" Padding="7" TextAlignment="Center"/>
+                                <TextBlock Text="Max" Padding="7" TextAlignment="Center"/>
                             </Border>
                             <Border BorderBrush="Black" BorderThickness="1,1,1,0" 
                                     Padding="7" Grid.Column="2" Grid.Row="2">
-                                <TextBox Text="{Binding TemperatureControlleA, Mode=TwoWay}" Padding="7" />
+                                <TextBox Text="{Binding WindowService.TemperatureControlleA, Mode=TwoWay}" Padding="7" />
                             </Border>
                             <Border BorderBrush="Black" BorderThickness="1,0,1,0" 
                                     Padding="7" Grid.Column="2" Grid.Row="3">
-                                <TextBox Text="{Binding LuminositeControlleA, Mode=TwoWay}" Padding="7" />
+                                <TextBox Text="{Binding WindowService.LuminositeControlleA, Mode=TwoWay}" Padding="7" />
                             </Border>
                             <Border BorderBrush="Black" BorderThickness="1,0,1,1" 
                                     Padding="7" Grid.Column="2" Grid.Row="4">
-                                <TextBox Text="{Binding HumiditeControlleA, Mode=TwoWay}" Padding="7" />
+                                <TextBox Text="{Binding WindowService.HumiditeControlleA, Mode=TwoWay}" Padding="7" />
                             </Border>
                             <Border BorderBrush="Black" BorderThickness="0,1,1,1" 
-        Padding="7" Grid.Column="3" Grid.Row="1">
+                                Padding="7" Grid.Column="3" Grid.Row="1">
                                 <TextBlock Text="Conseils" Padding="7" TextAlignment="Center"/>
                             </Border>
                             <Border BorderBrush="Black" BorderThickness="1,1,1,0" 
                                 Padding="7" Grid.Column="3" Grid.Row="2">
-                                <TextBlock Text="{Binding WindowService.TemperatureConseil}" Padding="7" />
+                                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                    <TextBlock Text="{Binding WindowService.TemperatureConseil}" Padding="7" 
+                                    TextWrapping="Wrap" 
+                                    VerticalAlignment="Center" 
+                                    HorizontalAlignment="Left"/>
+                                </ScrollViewer>
                             </Border>
                             <Border BorderBrush="Black" BorderThickness="1,0,1,0" 
                                 Padding="7" Grid.Column="3" Grid.Row="3">
-                                <TextBlock Text="{Binding WindowService.LuminositeConseil}" Padding="7" />
+                                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                    <TextBlock Text="{Binding WindowService.LuminositeConseil}" Padding="7"
+                                    TextWrapping="Wrap" 
+                                    VerticalAlignment="Center" 
+                                    HorizontalAlignment="Left"/>
+                                </ScrollViewer>
                             </Border>
                             <Border BorderBrush="Black" BorderThickness="1,0,1,1" 
                                 Padding="7" Grid.Column="3" Grid.Row="4">
-                                <TextBlock Text="{Binding WindowService.HumiditeConseil}" Padding="7" />
+                                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                    <TextBlock Text="{Binding WindowService.HumiditeConseil}" Padding="7" 
+                                    TextWrapping="Wrap" 
+                                    VerticalAlignment="Center" 
+                                    HorizontalAlignment="Left"/>
+                                </ScrollViewer>
                             </Border>
 
                             
@@ -510,13 +529,15 @@
                             Padding="7" />
                         </Grid>
                     </StackPanel>
-
+                   </ScrollViewer>
                 </materialDesign:Card>
             </StackPanel>
+        </ScrollViewer>
         </StackPanel>
-
+        
         <Border Grid.Row="2" Grid.Column="0" 
                 Background="{DynamicResource MaterialDesign.Brush.Primary.Dark}" 
                 HorizontalAlignment="Stretch" Grid.ColumnSpan="6"/>
+        
     </Grid>
 </Window>
