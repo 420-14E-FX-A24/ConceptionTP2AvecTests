@@ -167,35 +167,45 @@
                                 <StackPanel Orientation="Horizontal" Background="White" >
                                         <StackPanel Orientation="Vertical">
                                             <ToggleButton Style="{StaticResource SwitchToggleButtonStyle}"
-                                                          IsChecked="{Binding IsActionEclairage}"
+                                                          Command="{Binding SystemActionCommand}"
+                                                          CommandParameter="{Binding LightSystem.Type}"
+                                                          IsChecked="{Binding LightSystem.IsActivated, Mode=OneWay}"
                                                 Margin="2" HorizontalAlignment="Center" VerticalAlignment="Center">
                                                 <ToggleButton.ToolTip>
                                                     <ToolTip Content="Cliquer pour ouvrir/fermer les lumières." />
                                                 </ToggleButton.ToolTip>
                                             </ToggleButton>
-                                            <ToggleButton Style="{StaticResource SwitchToggleButtonStyle}" 
-                                                          IsChecked="{Binding IsActionFenetre}"
+                                            <ToggleButton Style="{StaticResource SwitchToggleButtonStyle}"
+                                                          Command="{Binding SystemActionCommand}"
+                                                          CommandParameter="{Binding WindowsSystem.Type}"
+                                                          IsChecked="{Binding WindowsSystem.IsActivated, Mode=OneWay}"
                                                 Margin="2" HorizontalAlignment="Center" VerticalAlignment="Center">
                                                 <ToggleButton.ToolTip>
                                                     <ToolTip Content="Cliquer pour ouvrir/fermer les fenêtres." />
                                                 </ToggleButton.ToolTip>
                                             </ToggleButton>
                                             <ToggleButton Style="{StaticResource SwitchToggleButtonStyle}" 
-                                                          IsChecked="{Binding IsActionArrosage}"
+                                                          Command="{Binding SystemActionCommand}"
+                                                          CommandParameter="{Binding WateringSystem.Type}"
+                                                          IsChecked="{Binding WateringSystem.IsActivated, Mode=OneWay}"
                                                 Margin="2" HorizontalAlignment="Center" VerticalAlignment="Center">
                                                 <ToggleButton.ToolTip>
                                                     <ToolTip Content="Cliquer pour ouvrir/fermer l'arrosage." />
                                                 </ToggleButton.ToolTip>
                                             </ToggleButton>
                                             <ToggleButton Style="{StaticResource SwitchToggleButtonStyle}"
-                                                          IsChecked="{Binding IsActionVentilateur}"
+                                                          Command="{Binding SystemActionCommand}"
+                                                          CommandParameter="{Binding FanSystem.Type}"
+                                                          IsChecked="{Binding FanSystem.IsActivated, Mode=OneWay}"
                                                 Margin="2" HorizontalAlignment="Center" VerticalAlignment="Center">
                                                 <ToggleButton.ToolTip>
                                                     <ToolTip Content="Cliquer pour ouvrir/fermer la ventillation." />
                                                 </ToggleButton.ToolTip>
                                             </ToggleButton>
                                             <ToggleButton Style="{StaticResource SwitchToggleButtonStyle}" 
-                                                          IsChecked="{Binding IsActionChauffage}"
+                                                          Command="{Binding SystemActionCommand}"
+                                                          CommandParameter="{Binding HeatSystem.Type}"
+                                                          IsChecked="{Binding HeatSystem.IsActivated, Mode=OneWay}"
                                                           Margin="2" HorizontalAlignment="Center" VerticalAlignment="Center">
                                                 <ToggleButton.ToolTip>
                                                     <ToolTip Content="Cliquer pour ouvrir/fermer la chauffage." />
@@ -259,8 +269,9 @@
                                 </Ellipse.RenderTransform>
                                 <i:Interaction.Triggers>
                                     <i:EventTrigger EventName="MouseLeftButtonDown">
-                                        <i:InvokeCommandAction Command="{Binding ActionFenetreCommand}" />
-                                    </i:EventTrigger>
+                                            <i:InvokeCommandAction Command="{Binding SystemActionCommand}"
+                                                                   CommandParameter="{Binding WindowsSystem.Type}" />
+                                        </i:EventTrigger>
                                 </i:Interaction.Triggers>
                                 <Ellipse.ToolTip>
                                     <ToolTip Content="Cliquer pour ouvrir/fermer les fenêtres." />
@@ -280,7 +291,8 @@
                                 </Ellipse.RenderTransform>
                                 <i:Interaction.Triggers>
                                     <i:EventTrigger EventName="MouseLeftButtonDown">
-                                        <i:InvokeCommandAction Command="{Binding ActionEclairageCommand}" />
+                                            <i:InvokeCommandAction Command="{Binding SystemActionCommand}"
+                                                                   CommandParameter="{Binding LightSystem.Type}" />
                                     </i:EventTrigger>
                                 </i:Interaction.Triggers>
                                 <Ellipse.ToolTip>
@@ -301,7 +313,8 @@
                                 </Ellipse.RenderTransform>
                                 <i:Interaction.Triggers>
                                     <i:EventTrigger EventName="MouseLeftButtonDown">
-                                        <i:InvokeCommandAction Command="{Binding ActionVentilateurCommand}" />
+                                            <i:InvokeCommandAction Command="{Binding SystemActionCommand}"
+                                                                   CommandParameter="{Binding FanSystem.Type}" />
                                     </i:EventTrigger>
                                 </i:Interaction.Triggers>
                                 <Ellipse.ToolTip>
@@ -322,8 +335,9 @@
                                 </Ellipse.RenderTransform>
                                 <i:Interaction.Triggers>
                                     <i:EventTrigger EventName="MouseLeftButtonDown">
-                                        <i:InvokeCommandAction Command="{Binding ActionArrosageCommand}" />
-                                    </i:EventTrigger>
+                                            <i:InvokeCommandAction Command="{Binding SystemActionCommand}"
+                                                                   CommandParameter="{Binding WateringSystem.Type}" />
+                                        </i:EventTrigger>
                                 </i:Interaction.Triggers>
                                 <Ellipse.ToolTip>
                                     <ToolTip Content="Cliquer pour ouvrir/fermer le système d'arrosage." />
@@ -343,8 +357,9 @@
                                 </Ellipse.RenderTransform>
                                 <i:Interaction.Triggers>
                                     <i:EventTrigger EventName="MouseLeftButtonDown">
-                                        <i:InvokeCommandAction Command="{Binding ActionChauffageCommand}" />
-                                    </i:EventTrigger>
+                                            <i:InvokeCommandAction Command="{Binding SystemActionCommand}"
+                                                                   CommandParameter="{Binding HeatSystem.Type}" />
+                                        </i:EventTrigger>
                                 </i:Interaction.Triggers>
                                 <Ellipse.ToolTip>
                                     <ToolTip Content="Cliquer pour ouvrir/fermer le système de chauffage." />
@@ -395,6 +410,10 @@
 
                             <TextBlock Text="Paramètres climatiques"  
                                        Padding="7" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="3"/>
+                            
+                            <ComboBox ItemsSource="{Binding Modes}" 
+                                  SelectedItem="{Binding SelectedMode, Mode=TwoWay}" 
+                                  Padding="7" Grid.Column="4" Grid.Row="0" />
 
                             <Border BorderBrush="Black" BorderThickness="1,1,1,0" 
                                     Padding="7" Grid.Column="0" Grid.Row="2">
@@ -414,15 +433,15 @@
                             </Border>
                             <Border BorderBrush="Black" BorderThickness="1,1,1,0" 
                                     Padding="7" Grid.Column="1" Grid.Row="2">
-                                <TextBox Text="{Binding WindowService.TemperatureControlleDe, Mode=TwoWay}" Padding="7" />
+                                <TextBox Text="{Binding TemperatureCondition.MinRangeValue, Mode=TwoWay}" Padding="7" />
                             </Border>
                             <Border BorderBrush="Black" BorderThickness="1,0,1,0" 
                                     Padding="7" Grid.Column="1" Grid.Row="3">
-                                <TextBox Text="{Binding WindowService.LuminositeControlleDe, Mode=TwoWay}" Padding="7" />
+                                <TextBox Text="{Binding LuminosityCondition.MinRangeValue, Mode=TwoWay}" Padding="7" />
                             </Border>
                             <Border BorderBrush="Black" BorderThickness="1,0,1,1" 
                                     Padding="7" Grid.Column="1" Grid.Row="4">
-                                <TextBox Text="{Binding WindowService.HumiditeControlleDe, Mode=TwoWay}" Padding="7" />
+                                <TextBox Text="{Binding HumidityCondition.MinRangeValue, Mode=TwoWay}" Padding="7" />
                             </Border>
                             <Border BorderBrush="Black" BorderThickness="0,1,1,1" 
                                     Padding="7" Grid.Column="2" Grid.Row="1">
@@ -430,15 +449,15 @@
                             </Border>
                             <Border BorderBrush="Black" BorderThickness="1,1,1,0" 
                                     Padding="7" Grid.Column="2" Grid.Row="2">
-                                <TextBox Text="{Binding WindowService.TemperatureControlleA, Mode=TwoWay}" Padding="7" />
+                                <TextBox Text="{Binding TemperatureCondition.MaxRangeValue, Mode=TwoWay}" Padding="7" />
                             </Border>
                             <Border BorderBrush="Black" BorderThickness="1,0,1,0" 
                                     Padding="7" Grid.Column="2" Grid.Row="3">
-                                <TextBox Text="{Binding WindowService.LuminositeControlleA, Mode=TwoWay}" Padding="7" />
+                                <TextBox Text="{Binding LuminosityCondition.MaxRangeValue, Mode=TwoWay}" Padding="7" />
                             </Border>
                             <Border BorderBrush="Black" BorderThickness="1,0,1,1" 
                                     Padding="7" Grid.Column="2" Grid.Row="4">
-                                <TextBox Text="{Binding WindowService.HumiditeControlleA, Mode=TwoWay}" Padding="7" />
+                                <TextBox Text="{Binding HumidityCondition.MaxRangeValue, Mode=TwoWay}" Padding="7" />
                             </Border>
                             <Border BorderBrush="Black" BorderThickness="0,1,1,1" 
                                 Padding="7" Grid.Column="3" Grid.Row="1">
