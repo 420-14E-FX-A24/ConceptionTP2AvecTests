@@ -43,15 +43,7 @@ namespace Automate.ViewModels
         public ICommand ActionChauffageCommand { get; }
         public ICommand ActionVentilateurCommand { get; }
 
-        private float _temperatureControlleDe;
-        private float _luminositeControlleDe;
-        private float _humiditeControlleDe;
-        private float _temperatureControlleA;
-        private float _luminositeControlleA;
-        private float _humiditeControlleA;
-        private float _temperatureConseil;
-        private float _luminositeConseil;
-        private float _humiditeConseil;
+
         private bool _isActionVentilateur;
         private bool _isActionChauffage;
         private bool _isActionArrosage;
@@ -245,85 +237,6 @@ namespace Automate.ViewModels
         }
 
 
-        public float TemperatureControlleDe
-        {
-            get => _temperatureControlleDe;
-            set
-            {
-                if (_temperatureControlleDe != value)
-                {
-                    _temperatureControlleDe = value;
-                    OnPropertyChanged(nameof(TemperatureControlleDe));
-                }
-            }
-        }
-
-        public float TemperatureControlleA
-        {
-            get => _temperatureControlleA;
-            set
-            {
-                if (_temperatureControlleA != value)
-                {
-                    _temperatureControlleA = value;
-                    OnPropertyChanged(nameof(TemperatureControlleA));
-                }
-            }
-        }
-
-        public float LuminositeControlleDe
-        {
-            get => _luminositeControlleDe;
-            set
-            {
-                if (_luminositeControlleDe != value)
-                {
-                    _luminositeControlleDe = value;
-                    OnPropertyChanged(nameof(LuminositeControlleDe));
-                }
-            }
-        }
-
-        public float LuminositeControlleA
-        {
-            get => _luminositeControlleA;
-            set
-            {
-                if (_luminositeControlleA != value)
-                {
-                    _luminositeControlleA = value;
-                    OnPropertyChanged(nameof(LuminositeControlleA));
-                }
-            }
-        }
-
-
-        public float HumiditeControlleDe
-        {
-            get => _humiditeControlleDe;
-            set
-            {
-                if (_humiditeControlleDe != value)
-                {
-                    _humiditeControlleDe = value;
-                    OnPropertyChanged(nameof(HumiditeControlleDe));
-                }
-            }
-        }
-
-        public float HumiditeControlleA
-        {
-            get => _humiditeControlleA;
-            set
-            {
-                if (_humiditeControlleA != value)
-                {
-                    _humiditeControlleA = value;
-                    OnPropertyChanged(nameof(HumiditeControlleA));
-                }
-            }
-        }
-
 		private ObservableCollection<ClimateSystem> _climateSystems;
 		public ObservableCollection<ClimateSystem> ClimateSystems
 		{
@@ -409,7 +322,13 @@ namespace Automate.ViewModels
                 || propertyName == "LuminositeReelle"
                 || propertyName == "TemperatureConseil"
                 || propertyName == "HumiditeConseil"
-                || propertyName == "LuminositeConseil")
+                || propertyName == "LuminositeConseil"
+                || propertyName == "HumiditeControlleA"
+                || propertyName == "HumiditeControlleDe"
+                || propertyName == "LuminositeControlleA"
+                || propertyName == "LuminositeControlleDe"
+                || propertyName == "TemperatureControlleA"
+                || propertyName == "TemperatureControlleDe")
                 fullPropertyName = "WindowService." + propertyName;
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(fullPropertyName));
         }
