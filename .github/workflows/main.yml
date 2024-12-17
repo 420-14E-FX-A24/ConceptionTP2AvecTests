@@ -60,7 +60,7 @@ jobs:
 
   release:
     needs: build-and-test
-    if: ${{ github.event.pull_request.merged == true && github.ref == 'refs/heads/main' }} || contains(github.event.head_commit.message, 'TP3-V')
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/main') || contains(github.event.head_commit.message, 'TP3-V')
     runs-on: windows-latest
     steps:
     - name: Checkout code
