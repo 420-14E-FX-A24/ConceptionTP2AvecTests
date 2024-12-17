@@ -12,6 +12,7 @@ on:
 
 permissions:
   issues: write
+  contents: write
 
 jobs:
   build-and-test:
@@ -59,7 +60,7 @@ jobs:
 
   release:
     needs: build-and-test
-    if: ${{ github.event_name == 'pull_request' && github.event.pull_request.merged == true }} || contains(github.event.head_commit.message, 'TP3-V')
+    if: ${{ github.event.pull_request.merged == true && github.ref == 'refs/heads/main' }} || contains(github.event.head_commit.message, 'TP3-V')
     runs-on: windows-latest
     steps:
     - name: Checkout code
