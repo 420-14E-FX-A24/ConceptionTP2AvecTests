@@ -39,9 +39,6 @@ jobs:
       id: test
       run: dotnet test --no-build --verbosity normal 14E-TP2-A2024/Automate.csproj
 
-    - name: Print GitHub context
-      run: echo "${{ toJson(github) }}"  
-      
     - name: Create GitHub issue on test failure
       if: failure()
       uses: actions/github-script@v6
@@ -61,7 +58,7 @@ jobs:
           core.setOutput('issue-url', issue.data.html_url);
 
   release:
-    if: (github.event_name == 'pull_request' && github.event.pull_request.merged == true) || contains(github.event.head_commit.message, 'TP3-V')
+    if: ${{ github.event_name == 'pull_request' && github.event.pull_request.merged == true }} || contains(github.event.head_commit.message, 'TP3-V')
     runs-on: windows-latest
     steps:
     - name: Checkout code
