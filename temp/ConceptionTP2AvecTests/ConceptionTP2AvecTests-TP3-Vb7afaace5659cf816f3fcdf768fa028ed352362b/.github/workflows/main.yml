@@ -1,0 +1,93 @@
+name: main.yml
+
+on:
+  push:
+    branches:
+      - '*'  # Triggers on any branch push
+  pull_request:
+    branches:
+      - main  # Triggers on PR to main branch
+
+permissions:
+  issues: write
+
+jobs:
+  build-and-test:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: '6.0.x'
+
+    - name: Navigate to project directory
+      run: cd 14E-TP2-A2024
+
+    - name: Restore dependencies
+      run: dotnet restore 14E-TP2-A2024/Automate.csproj
+
+    - name: Build project
+      run: dotnet build --configuration Release --no-restore 14E-TP2-A2024/Automate.csproj
+
+    - name: Run tests
+      id: test
+      run: dotnet test --no-build --verbosity normal 14E-TP2-A2024/Automate.csproj
+
+    - name: Create GitHub issue on test failure
+      if: failure()
+      uses: actions/github-script@v6
+      with:
+        github-token: ${{ secrets.TOKEN }}
+        script: |
+          const { owner, repo } = context.repo;
+          const issueTitle = `Test Failure in ${context.workflow}`;
+          const issueBody = `One or more tests failed in the workflow **${context.workflow}**. Please check the details and fix the issues.`;
+          const issue = await github.rest.issues.create({
+            owner,
+            repo,
+            title: issueTitle,
+            body: issueBody,
+            labels: ['bug', 'test-failure']
+          });
+          core.setOutput('issue-url', issue.data.html_url);
+
+  release:
+    runs-on: windows-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Extract tag name
+      id: extract_tag
+      run: echo "::set-output name=TAG_NAME::${GITHUB_REF#refs/tags/}"
+
+    - name: Publish project
+      run: dotnet publish --configuration Release --output ./publish 14E-TP2-A2024/Automate.csproj
+
+    - name: Create Release
+      uses: ChanTsune/release-with-commit@v3.0.0
+      with:
+        regexp: 'TP3-V.*'
+        release_name: 'Release ${{ github.sha }}'
+        tag_name: 'TP3-V${{ github.sha }}'
+        body: |
+          ## Nouvelle version
+          - Nouvelle remise
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.TOKEN }}
+
+    - name: Upload Release Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./14E-TP2-A2024/bin/Release/net6.0-windows/publish/Automate.exe
+        asset_name: Automate.exe
+        asset_content_type: application/octet-stream

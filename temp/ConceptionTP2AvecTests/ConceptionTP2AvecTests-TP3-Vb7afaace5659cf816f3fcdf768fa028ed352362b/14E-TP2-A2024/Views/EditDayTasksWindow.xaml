@@ -1,0 +1,234 @@
+﻿<Window x:Class="Automate.Views.EditDayTasksWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Automate"
+        xmlns:utils="clr-namespace:Automate.Utils"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib" 
+        xmlns:viewmodels="clr-namespace:Automate.ViewModels" 
+        d:DataContext="{d:DesignInstance Type=viewmodels:EditDayTasksViewModel}"
+        mc:Ignorable="d"
+        Title="EditDayTasksWindow" SizeToContent="WidthAndHeight" Height="auto" Width="auto"
+        xmlns:ui="http://schemas.modernwpf.com/2019"
+        ui:WindowHelper.UseModernWindowStyle="True"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes" 
+        xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+        x:Name="EditDayTasksView">
+    <Window.Resources>
+        <utils:BoolToColorConverter x:Key="BoolToColorConverter"/>
+        <utils:TypeLegendConverter x:Key="TypeLegendConverter"/>
+        <Style x:Key="CustomListBoxItemStyle" TargetType="ListBox" BasedOn="{StaticResource MaterialDesignListBox}">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Padding" Value="5"/>
+            <Setter Property="Margin" Value="2"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Style.Triggers>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="LightBlue"/>
+                    <Setter Property="Foreground" Value="White"/>
+                    <Setter Property="BorderBrush" Value="Blue"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="75" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="75" />
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0" Grid.Column="0" Background="{DynamicResource MaterialDesign.Brush.Primary.Dark}" HorizontalAlignment="Stretch" Width="auto" Grid.ColumnSpan="6">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="100" />
+                    <ColumnDefinition Width="*" />
+
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="75" />
+                </Grid.RowDefinitions>
+                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Left" Orientation="Horizontal" Grid.Column="1">
+                    <materialDesign:PackIcon Width="75"
+                    Height="75"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Kind="HoneyFarmer"
+                    Foreground="White"/>
+                    <TextBlock VerticalAlignment="Center" Text="Modification" Foreground="white" FontSize="24"/>
+
+                </StackPanel>
+                <Button
+                    Grid.Column="4"
+                    Width="50" 
+                    Height="50" 
+                    
+                    Command="{Binding ReturnHomeCommand}" RenderTransformOrigin="0.509,1.411" Margin="10,0,0,0">
+                    <materialDesign:PackIcon HorizontalAlignment="Center" Kind="Close" Width="60" Height="40" Foreground="white"/>
+                </Button>
+            </Grid>
+        </Border>
+
+        <materialDesign:Card Padding="19" Margin="0, 20, 0, 20" Grid.Row="1" HorizontalAlignment="Stretch" MaxWidth="840">
+            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+                <StackPanel HorizontalAlignment="Stretch">
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                    </Grid>
+
+                    <Separator Style="{StaticResource MaterialDesignLightSeparator}" Background="LightGray" />
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="50" />
+                            <RowDefinition Height="50" />
+                            <RowDefinition Height="400" />
+                        </Grid.RowDefinitions>
+                        <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" HorizontalAlignment="Stretch" MaxWidth="840">
+                            <Label Margin="15,0,0,0" Height="50" Width="525" VerticalContentAlignment="Center"  Style="{StaticResource MaterialDesignLabel}" >Date</Label>
+                            <TextBlock  Margin="10,0,0,0" VerticalAlignment="Center" Style="{StaticResource MaterialDesignBody1TextBlock}" Text="{Binding DateSelection, StringFormat='{}{0:yyyy-MM-dd}'}" />
+                        </StackPanel>
+
+                        <StackPanel Height="50" Orientation="Horizontal" Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Stretch" MaxWidth="840">
+                            <TextBlock
+                                Text="Ajouter des tâches" 
+                                Margin="-10,0,10,0"
+                                VerticalAlignment="Center" TextAlignment="Center" 
+                                HorizontalAlignment="Left"  
+                                Style="{StaticResource MaterialDesignTextBlock}" 
+                                Padding="0" Width="165"/>
+                            <Border BorderThickness="3" Width="545" x:Name="BorderTache">
+                                <TextBlock 
+                                x:Name="FeedbackAjouterTache" 
+                                Margin="20,0,10,0"  
+                                VerticalAlignment="Center" TextAlignment="Left" 
+                                HorizontalAlignment="Left"  
+                                Style="{StaticResource MaterialDesignTextBlock}" 
+                                Padding="10,0,0,0" />
+                            </Border>
+
+                        </StackPanel>
+
+                        <StackPanel Orientation="Vertical" Grid.Row="2" Grid.Column="0" HorizontalAlignment="Left" MaxWidth="840">
+
+                            <Border VerticalAlignment="Center"  Height="50" HorizontalAlignment="Stretch" BorderBrush="Black" BorderThickness="1" CornerRadius="5,5,0,0">
+                                <StackPanel Orientation="Horizontal">
+                                    <ComboBox
+                                        x:Name="cbxTasks"
+                                        Margin="10,0,0,0"
+                                        Height="50" Width="145"
+                                        HorizontalAlignment="Left"
+                                        materialDesign:HintAssist.Hint="Tâches" 
+                                        Style="{StaticResource MaterialDesignFloatingHintComboBox}"
+                                        SelectedItem="{Binding SelectedType, Mode=TwoWay}" 
+                                        ItemsSource="{Binding EnumValues}"
+                                        IsEnabled="{Binding IsTaskSelected}"/>
+
+                                    <Border HorizontalAlignment="Left" VerticalAlignment="Center" Height="50" MinWidth="610"  BorderBrush="Black" BorderThickness="1,0,0,0" Padding="5,0,0,0" Margin="10,0,0,0" CornerRadius="0,0,0,0">
+                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                            <TextBox 
+                                                x:Name="txtComment"  
+                                                TextAlignment="Left" 
+                                                HorizontalAlignment="Left" 
+                                                Height="50" Width="400" 
+                                                Style="{StaticResource MaterialDesignFloatingHintTextBox}" 
+                                                materialDesign:HintAssist.Hint="Saisissez un commentaire" 
+                                                Text="{Binding Comment, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                IsEnabled="{Binding IsTaskSelected}"/>
+                                            <Button
+                                            HorizontalAlignment="Right"
+                                            Width="50" 
+                                            Height="42" 
+                                            
+                                            Command="{Binding AddTaskCommand}" RenderTransformOrigin="0.509,1.411" 
+                                            Margin="10,0,10,0">
+                                                <materialDesign:PackIcon HorizontalAlignment="Center" Kind="Plus" Width="48" Height="20" Foreground="white"/>
+                                            </Button>
+                                            <Button
+                                            HorizontalAlignment="Right"
+                                            Width="50" 
+                                            Height="42" 
+                                            
+                                            Command="{Binding EditTaskCommand}" RenderTransformOrigin="0.509,1.411" 
+                                            Margin="10,0,10,0">
+                                                <materialDesign:PackIcon HorizontalAlignment="Center" Kind="ContentSave" Width="48" Height="20" Foreground="white"/>
+                                            </Button>
+                                            <Button
+                                            HorizontalAlignment="Right"
+                                            Width="50" 
+                                            Height="42" 
+                                            
+                                            Command="{Binding RemoveTaskCommand}" RenderTransformOrigin="0.509,1.411" 
+                                            Margin="10,0,10,0">
+                                                <materialDesign:PackIcon HorizontalAlignment="Center" Kind="TrashCan" Width="48" Height="20" Foreground="white"/>
+                                            </Button>
+                                        </StackPanel>
+                                    </Border>
+                                </StackPanel>
+                            </Border>
+                            <Border HorizontalAlignment="Stretch" BorderBrush="Black" BorderThickness="1" Background="#FFC0E6FF" Padding="15" CornerRadius="0,0,5,5" Height="350">
+                                <ScrollViewer VerticalScrollBarVisibility="Auto" MaxWidth="740">
+                                    <StackPanel Orientation="Horizontal" >
+                                        <ListBox Name="lb_tasks" VerticalAlignment="Top" Width="740" 
+                                                Style="{StaticResource CustomListBoxItemStyle}" 
+                                                ItemsSource="{Binding Tasks}"
+                                                SelectedItem="{Binding SelectedTask, Mode=TwoWay}">
+
+                                            <ListBox.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Border Background="White" Padding="5" CornerRadius="5">
+                                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                                            <Rectangle Width="20" Height="20"
+                                                               Fill="{Binding Type, Converter={StaticResource TypeLegendConverter}}"
+                                                               Margin="0,5,10,5"/>
+                                                            <TextBlock Text="{Binding Type}" 
+                                                               VerticalAlignment="Center" 
+                                                               FontWeight="Bold" 
+                                                               Margin="0,0,10,0"/>
+                                                            <TextBlock Text="{Binding Comment}" 
+                                                               VerticalAlignment="Center" 
+                                                               Foreground="Gray" />
+                                                        </StackPanel>
+                                                    </Border>
+                                                </DataTemplate>
+                                            </ListBox.ItemTemplate>
+                                        </ListBox>
+                                    </StackPanel>
+                                </ScrollViewer>
+                            </Border>
+                        </StackPanel>
+
+                    </Grid>
+
+                </StackPanel>
+            </ScrollViewer>
+        </materialDesign:Card>
+
+        <Border Grid.Row="2" Grid.Column="0" Background="{DynamicResource MaterialDesign.Brush.Primary.Dark}" HorizontalAlignment="Stretch" Grid.ColumnSpan="6">
+        </Border>
+
+    </Grid>
+
+</Window>
