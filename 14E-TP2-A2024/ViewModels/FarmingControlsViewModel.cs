@@ -31,28 +31,51 @@ namespace Automate.ViewModels
 		private readonly int[] DefaultDayMaxRangeValues = new int[] { 28, 70000, 85 };
         private readonly int[] DefaultNightMinRangeValues = new int[] { 15, 0, 65 };
 		private readonly int[] DefaultNightMaxRangeValues = new int[] { 18, 5000, 75 };
+		public ClimateCondition TemperatureCondition { get; set; }
+		public ClimateCondition HumidityCondition { get; set; }
+		public ClimateCondition LuminosityCondition { get; set; }
 
 		public ICommand SaveCommand { get; }
         public ICommand LogoutCommand { get; }
         public ICommand ReadMeteoDataCommand { get; }
         public ICommand StopReadingMeteoDataCommand { get; }
         public ICommand ReturnToHomeCommand { get; }
-        public ICommand ActionEclairageCommand { get; }
-        public ICommand ActionFenetreCommand { get; }
-        public ICommand ActionArrosageCommand { get; }
-        public ICommand ActionChauffageCommand { get; }
-        public ICommand ActionVentilateurCommand { get; }
+        public ICommand SystemActionCommand { get; }
 
+		public ObservableCollection<string> Modes { get; } = new ObservableCollection<string>
+		{
+			"Jour", "Nuit"
+		};
 
-        private bool _isActionVentilateur;
-        private bool _isActionChauffage;
-        private bool _isActionArrosage;
-        private bool _isActionFenetre;
-        private bool _isActionEclairage;
+		private string _selectedMode;
+		public string SelectedMode
+		{
+			get => _selectedMode;
+			set
+			{
+				if (_selectedMode != value)
+				{
+					_selectedMode = value;
+					OnPropertyChanged(nameof(SelectedMode));
+					LoadClimateConditions();
+				}
+			}
+		}
 
-       
+		private void LoadClimateConditions()
+		{
+			bool isDay = SelectedMode == "Jour";
 
-        public event PropertyChangedEventHandler? PropertyChanged;
+			TemperatureCondition = _climateConditions.FirstOrDefault(c => c.IsDay == isDay && c.Type == ClimateCondition.ConditionTypes.Temperature);
+			HumidityCondition = _climateConditions.FirstOrDefault(c => c.IsDay == isDay && c.Type == ClimateCondition.ConditionTypes.Humidity);
+			LuminosityCondition = _climateConditions.FirstOrDefault(c => c.IsDay == isDay && c.Type == ClimateCondition.ConditionTypes.Luminosity);
+
+			OnPropertyChanged(nameof(TemperatureCondition));
+			OnPropertyChanged(nameof(HumidityCondition));
+			OnPropertyChanged(nameof(LuminosityCondition));
+		}
+
+		public event PropertyChangedEventHandler? PropertyChanged;
 
 
         public FarmingControlsViewModel(Window openedWindow)
@@ -65,22 +88,20 @@ namespace Automate.ViewModels
             if (_windowService is null)
                 InitialiserWindowService();
 
-            SaveCommand = new RelayCommand(SaveValueClimatiques);
+            SaveCommand = new RelayCommand(SaveClimateConditions);
             LogoutCommand = new RelayCommand(Logout);
             ReadMeteoDataCommand = new RelayCommand(ReadMeteoData);
             StopReadingMeteoDataCommand = new RelayCommand(StopReadingMeteoData);
             ReturnToHomeCommand = new RelayCommand(ReturnToHome);
-            ActionEclairageCommand = new RelayCommand(ActionEclairage);
-            ActionFenetreCommand = new RelayCommand(ActionFenetre);
-            ActionArrosageCommand = new RelayCommand(ActionArrosage);
-            ActionChauffageCommand = new RelayCommand(ActionChauffage);
-            ActionVentilateurCommand = new RelayCommand(ActionVentilateur);
+            SystemActionCommand = new RelayCommand(SystemAction);
 
 			if (openedWindow is not null)
 			{
 				GetClimateSystems();
 				GetClimateConditions();
 			}
+
+			SelectedMode = "Jour";
 		}
 
         
@@ -121,35 +142,35 @@ namespace Automate.ViewModels
             }
         }
 
-        private void ActionVentilateur(object obj)
+        private void SystemAction(object obj)
         {
-            IsActionVentilateur = !IsActionVentilateur;
-        }
-
-        private void ActionChauffage(object obj)
-        {
-            IsActionChauffage = !IsActionChauffage;
-        }
-
-        private void ActionArrosage(object obj)
-        {
-            IsActionArrosage = !IsActionArrosage;
-        }
-
-        private void ActionFenetre(object obj)
-        {
-            IsActionFenetre = !IsActionFenetre;
-        }
-
-        private void ActionEclairage(object obj)
-        {
-            IsActionEclairage = !IsActionEclairage;
-        }
-
-        private void SaveValueClimatiques(object obj)
-        {
-            throw new NotImplementedException();
-        }
+            if (obj is ClimateSystem.SystemTypes type) 
+            { 
+                switch (type)
+                {
+                    case ClimateSystem.SystemTypes.Fan:
+                        FanSystem.IsActivated = !FanSystem.IsActivated;
+						SaveClimateSystem(FanSystem);
+						break;
+                    case ClimateSystem.SystemTypes.Light:
+					    LightSystem.IsActivated = !LightSystem.IsActivated;
+						SaveClimateSystem(LightSystem);
+						break;
+				    case ClimateSystem.SystemTypes.Heat:
+					    HeatSystem.IsActivated = !HeatSystem.IsActivated;
+						SaveClimateSystem(HeatSystem);
+						break;
+				    case ClimateSystem.SystemTypes.Windows:
+					    WindowsSystem.IsActivated = !WindowsSystem.IsActivated;
+						SaveClimateSystem(WindowsSystem);
+						break;
+				    case ClimateSystem.SystemTypes.Watering:
+					    WateringSystem.IsActivated = !WateringSystem.IsActivated;
+						SaveClimateSystem(WateringSystem);
+						break;
+			    }
+			}
+		}
 
         private void Logout()
         {
@@ -170,83 +191,75 @@ namespace Automate.ViewModels
             }
         }
 
-        public bool IsActionVentilateur
+        private ClimateSystem _fanSystem;
+        public ClimateSystem FanSystem
         {
-            get => _isActionVentilateur;
+            get => _fanSystem;
             set
             {
-                if (_isActionVentilateur != value)
+                if (_fanSystem != value)
                 {
-                    _isActionVentilateur = value;
-                    OnPropertyChanged(nameof(IsActionVentilateur));
+					_fanSystem = value;
+                    OnPropertyChanged(nameof(FanSystem));
                 }
             }
         }
 
-        public bool IsActionChauffage
+        private ClimateSystem _heatSystem;
+        public ClimateSystem HeatSystem
         {
-            get => _isActionChauffage;
+            get => _heatSystem;
             set
             {
-                if (_isActionChauffage != value)
+                if (_heatSystem != value)
                 {
-                    _isActionChauffage = value;
-                    OnPropertyChanged(nameof(IsActionChauffage));
+					_heatSystem = value;
+                    OnPropertyChanged(nameof(HeatSystem));
                 }
             }
         }
 
-        public bool IsActionEclairage
+        private ClimateSystem _lightSystem;
+        public ClimateSystem LightSystem
         {
-            get => _isActionEclairage;
+            get => _lightSystem;
             set
             {
-                if (_isActionEclairage != value)
+                if (_lightSystem != value)
                 {
-                    _isActionEclairage = value;
-                    OnPropertyChanged(nameof(IsActionEclairage));
+					_lightSystem = value;
+                    OnPropertyChanged(nameof(LightSystem));
                 }
             }
         }
 
-        public bool IsActionArrosage
+        private ClimateSystem _wateringSystem;
+        public ClimateSystem WateringSystem
         {
-            get => _isActionArrosage;
+            get => _wateringSystem;
             set
             {
-                if (_isActionArrosage != value)
+                if (_wateringSystem != value)
                 {
-                    _isActionArrosage = value;
-                    OnPropertyChanged(nameof(IsActionArrosage));
+					_wateringSystem = value;
+                    OnPropertyChanged(nameof(WateringSystem));
                 }
             }
         }
 
-
-        public bool IsActionFenetre
+        private ClimateSystem _windowsSystem;
+        public ClimateSystem WindowsSystem
         {
-            get => _isActionFenetre;
+            get => _windowsSystem;
             set
             {
-                if (_isActionFenetre != value)
+                if (_windowsSystem != value)
                 {
-                    _isActionFenetre = value;
-                    OnPropertyChanged(nameof(IsActionFenetre));
+					_windowsSystem = value;
+                    OnPropertyChanged(nameof(WindowsSystem));
                 }
             }
         }
-
-
-		private ObservableCollection<ClimateSystem> _climateSystems;
-		public ObservableCollection<ClimateSystem> ClimateSystems
-		{
-			get => _climateSystems;
-			set
-			{
-				_climateSystems = value;
-				OnPropertyChanged(nameof(ClimateSystems));
-			}
-		}
 
 		private ObservableCollection<ClimateCondition> _climateConditions;
 		public ObservableCollection<ClimateCondition> ClimateConditions
@@ -263,24 +276,32 @@ namespace Automate.ViewModels
 		{
 			var systems = _mongoService.GetClimateSystems();
 
-			if (systems == null || systems.Count == 0)
+			foreach (var type in Enum.GetValues<ClimateSystem.SystemTypes>())
 			{
-				ClimateSystems = new ObservableCollection<ClimateSystem>
-				{
-					new ClimateSystem(ClimateSystem.SystemTypes.Light),
-					new ClimateSystem(ClimateSystem.SystemTypes.Windows),
-					new ClimateSystem(ClimateSystem.SystemTypes.Watering),
-					new ClimateSystem(ClimateSystem.SystemTypes.Fan),
-					new ClimateSystem(ClimateSystem.SystemTypes.Heat)
-				};
+				var system = systems.FirstOrDefault(s => s.Type == type) ?? new ClimateSystem(type);
 
-				foreach (var climateSystem in ClimateSystems)
+				switch (type)
 				{
-					SaveClimateSystem(climateSystem);
+					case ClimateSystem.SystemTypes.Light:
+						LightSystem = system;
+						break;
+					case ClimateSystem.SystemTypes.Windows:
+						WindowsSystem = system;
+						break;
+					case ClimateSystem.SystemTypes.Watering:
+						WateringSystem = system;
+						break;
+					case ClimateSystem.SystemTypes.Fan:
+						FanSystem = system;
+						break;
+					case ClimateSystem.SystemTypes.Heat:
+						HeatSystem = system;
+						break;
 				}
+
+                if (!systems.Any(s => s.Type == type))
+                    SaveClimateSystem(system);
 			}
-			else
-				ClimateSystems = systems;
 		}
 
 		public void SaveClimateSystem(ClimateSystem climateSystem)
@@ -304,41 +325,35 @@ namespace Automate.ViewModels
 					new ClimateCondition(ClimateCondition.ConditionTypes.Humidity, DefaultNightMinRangeValues[2], DefaultNightMaxRangeValues[2], false)
 				};
 
-				foreach (var climateCondition in ClimateConditions)
-				{
-					SaveClimateCondition(climateCondition);
-				}
+                SaveClimateConditions();
 			}
 			else
 				ClimateConditions = conditions;
 		}
 
-        protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
-        {
-            string fullPropertyName = propertyName;
-
-            if (propertyName == "TemperatureReelle"
-                || propertyName == "HumiditeReelle"
-                || propertyName == "LuminositeReelle"
-                || propertyName == "TemperatureConseil"
-                || propertyName == "HumiditeConseil"
-                || propertyName == "LuminositeConseil"
-                || propertyName == "HumiditeControlleA"
-                || propertyName == "HumiditeControlleDe"
-                || propertyName == "LuminositeControlleA"
-                || propertyName == "LuminositeControlleDe"
-                || propertyName == "TemperatureControlleA"
-                || propertyName == "TemperatureControlleDe")
-                fullPropertyName = "WindowService." + propertyName;
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(fullPropertyName));
-        }
-
-		public void SaveClimateCondition(ClimateCondition climateCondition)
+		public void SaveClimateConditions()
 		{
-			_mongoService.SaveClimateCondition(climateCondition);
+			foreach (var climateCondition in ClimateConditions)
+			{
+				_mongoService.SaveClimateCondition(climateCondition);
+			}
 		}
 
-        private void WindowServiceWrapper_PropertyChanged(object sender, PropertyChangedEventArgs e)
+		protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+		{
+			string fullPropertyName = propertyName;
+
+			if (propertyName == "TemperatureReelle"
+			 || propertyName == "HumiditeReelle"
+			 || propertyName == "LuminositeReelle"
+			 || propertyName == "TemperatureConseil"
+			 || propertyName == "HumiditeConseil"
+			 || propertyName == "LuminositeConseil")
+				fullPropertyName = "WindowService." + propertyName;
+			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(fullPropertyName));
+		}
+
+		private void WindowServiceWrapper_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             OnPropertyChanged(e.PropertyName);
         }
