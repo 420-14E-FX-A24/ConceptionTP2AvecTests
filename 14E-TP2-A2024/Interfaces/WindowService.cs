@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Windows;
 using Automate.Models;
 
@@ -19,6 +20,7 @@ namespace Automate.Interfaces
         int HumiditeReelle { get; set; }
 
         string FileName { get; set; }
+        Stream? OpenRead(string path);
 
         void LoadFile(string filePath);
 
@@ -28,6 +30,11 @@ namespace Automate.Interfaces
         Dictionary<int, string[]> FileData { get; set; }
         int MeteoChangeDelay { get; set; }
         bool MeteoDataIsRead { get; set; }
+
+        bool FileIsLoading { get; set; }
+
+        string GiveAdviceTomatoParameters(int minValue, int maxValue, ref string accesseurConseil,
+            int accesseurReelle, string propertyName);
 
     }
 }

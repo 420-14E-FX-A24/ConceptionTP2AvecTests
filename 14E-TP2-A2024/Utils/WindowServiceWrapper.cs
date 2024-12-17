@@ -11,6 +11,9 @@ using System.Windows;
 using System.Threading.Tasks;
 using System.Text;
 using System.Threading;
+using SharpCompress.Common;
+using SharpCompress.Compressors.Xz;
+using System.Diagnostics;
 
 
 namespace Automate.Utils
@@ -23,7 +26,7 @@ namespace Automate.Utils
         private NavigationService _navigationService;
         public Dictionary<int, string[]> FileData { get; set; } = new Dictionary<int, string[]>();
         public int MeteoChangeDelay { get; set; } = 10;
-
+        public bool FileIsLoading { get; set; } = false;
         public string FileName { get; set; }
         private CancellationTokenSource _cancellationTokenSource;
         public event PropertyChangedEventHandler? PropertyChanged;
@@ -33,11 +36,15 @@ namespace Automate.Utils
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        private WindowServiceWrapper(object viewModel, Window window, NavigationService navigationService)
+        public WindowServiceWrapper(object viewModel = null, Window window = null, NavigationService navigationService = null, IWindowService windowService = null)
         {
             _viewModel = viewModel;
             _window = window;
             _navigationService = navigationService;
+            if (windowService != null)
+                _sharedSingleton = windowService;
+            else
+                _sharedSingleton = (IWindowService)this;
         }
 
         public static IWindowService GetInstance(object viewModel, Window window, NavigationService navigationService)
@@ -156,7 +163,90 @@ namespace Automate.Utils
             }
         }
 
+        private int _temperatureControlleDe;
+        public int TemperatureControlleDe
+        {
+            get => _temperatureControlleDe == 0 ? TemperatureIdeale.Item1 : _temperatureControlleA;
+            set
+            {
+                if (_temperatureControlleDe != value)
+                {
+                    _temperatureControlleDe = value;
+                    OnPropertyChanged(nameof(TemperatureControlleDe));
+                }
+            }
+        }
 
+        private int _temperatureControlleA;
+        public int TemperatureControlleA
+        {
+            get => _temperatureControlleA == 0 ? TemperatureIdeale.Item2 : _temperatureControlleA;
+            set
+            {
+                if (_temperatureControlleA != value)
+                {
+                    _temperatureControlleA = value;
+                    OnPropertyChanged(nameof(TemperatureControlleA));
+                }
+            }
+        }
+        
+        private int _luminositeControlleDe;
+        public int LuminositeControlleDe
+        {
+            get => _luminositeControlleDe == 0 ? LuminositeIdeale.Item1 : _luminositeControlleA;
+            set
+            {
+                if (_luminositeControlleDe != value)
+                {
+                    _luminositeControlleDe = value;
+                    OnPropertyChanged(nameof(LuminositeControlleDe));
+                }
+            }
+        }
+
+        private int _luminositeControlleA;
+        public int LuminositeControlleA
+        {
+            get => _luminositeControlleA == 0 ? LuminositeIdeale.Item2 : _luminositeControlleA;
+            set
+            {
+                if (_luminositeControlleA != value)
+                {
+                    _luminositeControlleA = value;
+                    OnPropertyChanged(nameof(LuminositeControlleA));
+                }
+            }
+        }
+
+
+        private int _humiditeControlleDe;
+        public int HumiditeControlleDe
+        {
+            get => _humiditeControlleDe == 0 ? HumiditeIdeale.Item1 : _humiditeControlleDe;
+            set
+            {
+                if (_humiditeControlleDe != value)
+                {
+                    _humiditeControlleDe = value;
+                    OnPropertyChanged(nameof(HumiditeControlleDe));
+                }
+            }
+        }
+
+        private int _humiditeControlleA;
+        public int HumiditeControlleA
+        {
+            get => _humiditeControlleA == 0 ? HumiditeIdeale.Item2 : _humiditeControlleA;
+            set
+            {
+                if (_humiditeControlleA != value)
+                {
+                    _humiditeControlleA = value;
+                    OnPropertyChanged(nameof(HumiditeControlleA));
+                }
+            }
+        }
 
         private (int, int) _temperatureIdeale = (13, 29); //55 and 85 degrees Fahrenheit
         public (int, int) TemperatureIdeale { get => _temperatureIdeale;}
@@ -164,19 +254,64 @@ namespace Automate.Utils
         public (int, int) HumiditeIdeale { get => _humiditeIdeale; }
         private (int, int) _luminositeIdeale = (17391, 26087); //17391, 26087 lux
         public (int, int) LuminositeIdeale { get => _luminositeIdeale; }
-        private void GiveAdviceTomatoParameters(int minValue, int maxValue, ref int accesseurConseil, int accesseurReelle)
-        {
 
-            if (accesseurReelle < minValue)
-                accesseurConseil = minValue;
-            else if (accesseurReelle > maxValue)
-                accesseurConseil = maxValue;
-            else
-                accesseurConseil = accesseurReelle;
+
+
+        public string GiveAdviceTomatoParameters(int minValue, int maxValue, ref string accesseurConseil,
+            int accesseurReelle, string propertyName)
+        {
+            string[] parameters = new string[5] { "fenêtres", "chauffage", 
+                "ventilateurs", "arrosage", "lumières" };
+            string[] actions = new string[2] { "ouvrir", "fermer" };
+            accesseurConseil = "Aucun ajustement nécessaire";
+            if (propertyName == "Temperature")
+            {
+                if (accesseurReelle < minValue)
+                    accesseurConseil = CreateAdviceString(actions[1], parameters[0], actions[0], 
+                        parameters[1], actions[1], parameters[2]);
+                else if (accesseurReelle > maxValue)
+                    accesseurConseil = CreateAdviceString(actions[0], parameters[0], actions[1], 
+                        parameters[1], actions[0], parameters[2], actions[0], parameters[3]);
+            }
+            else if (propertyName == "Humidite")
+            {
+                if (accesseurReelle < minValue)
+                    accesseurConseil = CreateAdviceString(actions[1], parameters[0], actions[1], 
+                        parameters[1], actions[1], parameters[2], actions[0], parameters[3]);
+                else if (accesseurReelle > maxValue)
+                    accesseurConseil = CreateAdviceString(actions[0], parameters[0], actions[0], 
+                        parameters[1], actions[0], parameters[2], actions[1], parameters[3]);
+            }
+            else if (propertyName == "Luminosite")
+            {
+                if (accesseurReelle < minValue)
+                    accesseurConseil = CreateAdviceString(actions[1], parameters[0], actions[0], parameters[4]);
+                else if (accesseurReelle > maxValue)
+                    accesseurConseil = CreateAdviceString(actions[0], parameters[0], actions[1], parameters[4]);
+            }
+            return accesseurConseil;
         }
 
-        private int _luminositeConseil;
-        public int LuminositeConseil
+        private string CreateAdviceString(params string[] items)
+        {
+            if (items.Length == 0) return string.Empty;
+
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < items.Length; i += 2)
+            {
+                if (i > 0)
+                {
+                    sb.Append(", ");
+                }
+                sb.Append(items[i]).Append(" ").Append(items[i + 1]);
+            }
+
+            return sb.ToString();
+        }
+
+
+        private string _luminositeConseil;
+        public string LuminositeConseil
         {
             get => _luminositeConseil;
             set
@@ -188,8 +323,8 @@ namespace Automate.Utils
                 }
             }
         }
-        private int _temperatureConseil;
-        public int TemperatureConseil
+        private string _temperatureConseil;
+        public string TemperatureConseil
         {
             get => _temperatureConseil;
             set
@@ -201,8 +336,8 @@ namespace Automate.Utils
                 }
             }
         }
-        private int _humiditeConseil;
-        public int HumiditeConseil
+        private string _humiditeConseil;
+        public string HumiditeConseil
         {
             get => _humiditeConseil;
             set
@@ -221,14 +356,14 @@ namespace Automate.Utils
 			get => _temperatureReelle;
 			set
 			{
-                if (_humiditeReelle != value)
+                if (_temperatureReelle != value)
                 {
                     _temperatureReelle = value;
                     OnPropertyChanged(nameof(TemperatureReelle));
-                    int oldValueConseil = TemperatureConseil;
+                    string oldValueConseil = TemperatureConseil;
                     GiveAdviceTomatoParameters(TemperatureIdeale.Item1, 
                         TemperatureIdeale.Item2, 
-                        ref _temperatureConseil, TemperatureReelle);
+                        ref _temperatureConseil, TemperatureReelle, "Temperature");
                     if(TemperatureConseil != oldValueConseil)
                         OnPropertyChanged(nameof(TemperatureConseil));
                 }
@@ -240,14 +375,14 @@ namespace Automate.Utils
             get => _luminositeReelle;
 			set
 			{
-                if (_humiditeReelle != value)
+                if (_luminositeReelle != value)
                 {
                     _luminositeReelle = value;
                     OnPropertyChanged(nameof(LuminositeReelle));
-                    int oldValueConseil = LuminositeConseil;
+                    string oldValueConseil = LuminositeConseil;
                     GiveAdviceTomatoParameters(LuminositeIdeale.Item1,
                         LuminositeIdeale.Item2,
-                        ref _luminositeConseil, LuminositeReelle);
+                        ref _luminositeConseil, LuminositeReelle, "Luminosite");
                     if (LuminositeConseil != oldValueConseil)
                         OnPropertyChanged(nameof(LuminositeConseil));
                 }
@@ -263,10 +398,10 @@ namespace Automate.Utils
                 {
                     _humiditeReelle = value;
                     OnPropertyChanged(nameof(HumiditeReelle));
-                    int oldValueConseil = HumiditeConseil;
+                    string oldValueConseil = HumiditeConseil;
                     GiveAdviceTomatoParameters(HumiditeIdeale.Item1,
                         HumiditeIdeale.Item2,
-                        ref _humiditeConseil, HumiditeReelle);
+                        ref _humiditeConseil, HumiditeReelle, "Humidite");
                     if (HumiditeConseil != oldValueConseil)
                         OnPropertyChanged(nameof(HumiditeConseil));
                 }    
@@ -311,6 +446,20 @@ namespace Automate.Utils
             _sharedSingleton = null;
         }
 
+        public Stream? OpenRead(string path)
+        {
+            Stream? stream = null;
+            if (!FileIsLoading)
+            {
+                FileIsLoading = true;
+                if(_sharedSingleton is WindowServiceWrapper)
+                    stream = new FileStream(path, FileMode.Open, FileAccess.Read);
+                else
+                    stream = _sharedSingleton.OpenRead(path);
+                return stream;
+            }
+            return stream;
+        }
 
         public void LoadFile(string fileName)
         {
@@ -318,25 +467,27 @@ namespace Automate.Utils
             string filePath = Path.Combine(binPath, fileName);
             var encoding = Encoding.GetEncoding("iso-8859-1");
 
-            using (var fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
-            using (var reader = new StreamReader(fileStream, encoding))
+            using (var fileStream = OpenRead(filePath))
             {
-                var lines = new List<string>();
-                string line;
-                while ((line = reader.ReadLine()) != null)
-                {
-                    lines.Add(line);
-                }
-                var data = lines.Skip(1).Select(l => l.Split(',')).ToList();
-                var headers = lines.First().Split(',');
+                if (fileStream is null)
+                    return;
 
-                for (int i = 0; i < data.Count; i++)
+                using (var reader = new StreamReader(fileStream, encoding))
                 {
-                    AddLineToFileData(i, data[i]);
+                    var lines = new List<string>();
+                    string line;
+                    while ((line = reader.ReadLine()) != null)
+                    {
+                        lines.Add(line);
+                    }
+                    var data = lines.Skip(1).Select(l => l.Split(',')).ToList();
+                    for (int i = 0; i < data.Count; i++)
+                    {
+                        AddLineToFileData(i, data[i]);
+                    }
                 }
             }
-
-
+            FileIsLoading = false;
         }
 
         public void AddLineToFileData(int index, string[] line)
@@ -408,6 +559,7 @@ namespace Automate.Utils
                 return result;
             return null;
         }
+
     }
 
     

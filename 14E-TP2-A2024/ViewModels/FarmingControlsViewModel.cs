@@ -40,6 +40,7 @@ namespace Automate.ViewModels
         public ICommand ReadMeteoDataCommand { get; }
         public ICommand StopReadingMeteoDataCommand { get; }
         public ICommand ReturnToHomeCommand { get; }
+
         public ICommand SystemActionCommand { get; }
 
 		public ObservableCollection<string> Modes { get; } = new ObservableCollection<string>
@@ -77,7 +78,6 @@ namespace Automate.ViewModels
 
 		public event PropertyChangedEventHandler? PropertyChanged;
 
-
         public FarmingControlsViewModel(Window openedWindow)
         {
             if (_mongoService is null)
@@ -103,8 +103,7 @@ namespace Automate.ViewModels
 
 			SelectedMode = "Jour";
 		}
-
-        
+ 
 
         private void ReturnToHome(object obj)
         {
@@ -247,19 +246,16 @@ namespace Automate.ViewModels
             }
         }
 
-        private ClimateSystem _windowsSystem;
-        public ClimateSystem WindowsSystem
-        {
-            get => _windowsSystem;
-            set
-            {
-                if (_windowsSystem != value)
-                {
-					_windowsSystem = value;
-                    OnPropertyChanged(nameof(WindowsSystem));
-                }
-            }
-        }
+		private ObservableCollection<ClimateSystem> _climateSystems;
+		public ObservableCollection<ClimateSystem> ClimateSystems
+		{
+			get => _climateSystems;
+			set
+			{
+				_climateSystems = value;
+				OnPropertyChanged(nameof(ClimateSystems));
+			}
+		}
 
 		private ObservableCollection<ClimateCondition> _climateConditions;
 		public ObservableCollection<ClimateCondition> ClimateConditions
