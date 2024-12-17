@@ -11,6 +11,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Data.Common;
 using System.Linq;
+using System.Net.Sockets;
 using System.Reflection.Metadata;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -87,7 +88,12 @@ namespace Automate.ViewModels
             Window = openedWindow;
             if (_windowService is null)
                 InitialiserWindowService();
-
+            else
+            {
+                if (_windowService is WindowServiceWrapper windowServiceWrapper)
+                    windowServiceWrapper.ViewModel = this;
+            }
+                
             SaveCommand = new RelayCommand(SaveClimateConditions);
             LogoutCommand = new RelayCommand(Logout);
             ReadMeteoDataCommand = new RelayCommand(ReadMeteoData);
@@ -137,9 +143,9 @@ namespace Automate.ViewModels
         {
             _windowService = WindowServiceWrapper.GetInstance(this, Window, _navigationService);
             if (_windowService is INotifyPropertyChanged notifyPropertyChanged)
-            {
                 notifyPropertyChanged.PropertyChanged += WindowServiceWrapper_PropertyChanged;
-            }
+            if (_windowService is WindowServiceWrapper windowServiceWrapper)
+                windowServiceWrapper.ViewModel = this;
         }
 
         private void SystemAction(object obj)
@@ -353,9 +359,37 @@ namespace Automate.ViewModels
 			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(fullPropertyName));
 		}
 
-		private void WindowServiceWrapper_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        /// <summary>
+        /// Permet de notifier le view model qu'une propriété a changée. 
+        /// Dans le cas complexe que l'accesseur appartient à un groupe de méthodes, sa nouvelle valeur est passée par 
+        /// WindowServiceWrapper. L'accesseur n'aura pas besoin d'être déplacé pour recevoir sa nouvelle valeur dynamique. 
+        /// Il pourra demeurer dans le view model. Reflection est utilisée pour mettre à jour l'accesseur selon son type.
+        /// </summary>
+        /// <param name="sender">Source de l'évènement.</param>
+        /// <param name="e">PropertyChangedEventArgs, il contient la donnée.</param>
+        private void WindowServiceWrapper_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
+            if (e is CustomPropertyChangedEvent ex)
+            {
+                var newValue = ex.NewValue;
+                if (newValue is not null)
+                {
+                    var propertyType = GetPropertyType(e.PropertyName);
+                    if (propertyType != null && propertyType.IsInstanceOfType(newValue))
+                    {
+                        var property = GetType().GetProperty(e.PropertyName);
+                        if (property != null)
+                            property.SetValue(this, newValue);
+                    }
+                }
+            }
             OnPropertyChanged(e.PropertyName);
+        }
+
+        private Type GetPropertyType(string propertyName)
+        {
+            var property = this.GetType().GetProperty(propertyName);
+            return property?.PropertyType;
         }
     }
 }

@@ -49,7 +49,12 @@ namespace Automate.ViewModels
             _navigationService = new NavigationService();
             Window = openedWindow;
             if (_windowService is null)
-				InitialiserWindowService();
+                InitialiserWindowService();
+            else
+            {
+                if (_windowService is WindowServiceWrapper windowServiceWrapper)
+                    windowServiceWrapper.ViewModel = this;
+            }
 
             ShowDayTasksCommand = new RelayCommand(ShowDayTasks);
 			EditDayTasksCommand = new RelayCommand(EditDayTasks);
@@ -86,12 +91,12 @@ namespace Automate.ViewModels
         }
 
         private void InitialiserWindowService()
-		{
+        {
             _windowService = WindowServiceWrapper.GetInstance(this, Window, _navigationService);
             if (_windowService is INotifyPropertyChanged notifyPropertyChanged)
-            {
                 notifyPropertyChanged.PropertyChanged += WindowServiceWrapper_PropertyChanged;
-            }
+            if (_windowService is WindowServiceWrapper windowServiceWrapper)
+                windowServiceWrapper.ViewModel = this;
         }
 
         private void NaviguerControle(object obj)

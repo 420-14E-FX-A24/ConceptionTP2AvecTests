@@ -1,19 +1,18 @@
 ﻿using Automate.Interfaces;
-using Automate.Models;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Threading.Tasks;
 using System.Text;
 using System.Threading;
-using SharpCompress.Common;
-using SharpCompress.Compressors.Xz;
 using System.Diagnostics;
+using static MongoDB.Driver.WriteConcern;
+using System.Net.Sockets;
+using Automate.ViewModels;
 
 
 namespace Automate.Utils
@@ -31,20 +30,29 @@ namespace Automate.Utils
         private CancellationTokenSource _cancellationTokenSource;
         public event PropertyChangedEventHandler? PropertyChanged;
 
-        protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        protected void OnPropertyChanged(string propertyName, object newValue = null)
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            if (newValue != null)
+                PropertyChanged?.Invoke(this, new CustomPropertyChangedEvent(propertyName, newValue));
+            else
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
+
+        public void NotifyPropertyChanged(string propertyName, object newValue = null)
+        {
+            OnPropertyChanged(propertyName, newValue);
+        }
+
 
         public WindowServiceWrapper(object viewModel = null, Window window = null, NavigationService navigationService = null, IWindowService windowService = null)
         {
-            _viewModel = viewModel;
+            ViewModel = viewModel;
             _window = window;
             _navigationService = navigationService;
             if (windowService != null)
                 _sharedSingleton = windowService;
             else
-                _sharedSingleton = (IWindowService)this;
+                _sharedSingleton = this;
         }
 
         public static IWindowService GetInstance(object viewModel, Window window, NavigationService navigationService)
@@ -53,7 +61,6 @@ namespace Automate.Utils
             {
                 _sharedSingleton = new WindowServiceWrapper(viewModel, window, navigationService);
             }
-
             return _sharedSingleton;
         }
 
@@ -68,13 +75,10 @@ namespace Automate.Utils
             set
             {
                 if (_viewModel != value)
-                {
                     _viewModel = value;
-                    OnPropertyChanged();
-                }
-
             }
         }
+
         private DateTime _dateSelection;
         public DateTime DateSelection
         {
@@ -97,7 +101,7 @@ namespace Automate.Utils
                     if (_dateSelection != value)
                     {
                         _dateSelection = value;
-                        OnPropertyChanged(nameof(IsAdmin));
+                        OnPropertyChanged(nameof(DateSelection));
                     }
                 }
             }
@@ -163,100 +167,6 @@ namespace Automate.Utils
             }
         }
 
-        private int _temperatureControlleDe;
-        public int TemperatureControlleDe
-        {
-            get => _temperatureControlleDe == 0 ? TemperatureIdeale.Item1 : _temperatureControlleA;
-            set
-            {
-                if (_temperatureControlleDe != value)
-                {
-                    _temperatureControlleDe = value;
-                    OnPropertyChanged(nameof(TemperatureControlleDe));
-                }
-            }
-        }
-
-        private int _temperatureControlleA;
-        public int TemperatureControlleA
-        {
-            get => _temperatureControlleA == 0 ? TemperatureIdeale.Item2 : _temperatureControlleA;
-            set
-            {
-                if (_temperatureControlleA != value)
-                {
-                    _temperatureControlleA = value;
-                    OnPropertyChanged(nameof(TemperatureControlleA));
-                }
-            }
-        }
-        
-        private int _luminositeControlleDe;
-        public int LuminositeControlleDe
-        {
-            get => _luminositeControlleDe == 0 ? LuminositeIdeale.Item1 : _luminositeControlleA;
-            set
-            {
-                if (_luminositeControlleDe != value)
-                {
-                    _luminositeControlleDe = value;
-                    OnPropertyChanged(nameof(LuminositeControlleDe));
-                }
-            }
-        }
-
-        private int _luminositeControlleA;
-        public int LuminositeControlleA
-        {
-            get => _luminositeControlleA == 0 ? LuminositeIdeale.Item2 : _luminositeControlleA;
-            set
-            {
-                if (_luminositeControlleA != value)
-                {
-                    _luminositeControlleA = value;
-                    OnPropertyChanged(nameof(LuminositeControlleA));
-                }
-            }
-        }
-
-
-        private int _humiditeControlleDe;
-        public int HumiditeControlleDe
-        {
-            get => _humiditeControlleDe == 0 ? HumiditeIdeale.Item1 : _humiditeControlleDe;
-            set
-            {
-                if (_humiditeControlleDe != value)
-                {
-                    _humiditeControlleDe = value;
-                    OnPropertyChanged(nameof(HumiditeControlleDe));
-                }
-            }
-        }
-
-        private int _humiditeControlleA;
-        public int HumiditeControlleA
-        {
-            get => _humiditeControlleA == 0 ? HumiditeIdeale.Item2 : _humiditeControlleA;
-            set
-            {
-                if (_humiditeControlleA != value)
-                {
-                    _humiditeControlleA = value;
-                    OnPropertyChanged(nameof(HumiditeControlleA));
-                }
-            }
-        }
-
-        private (int, int) _temperatureIdeale = (13, 29); //55 and 85 degrees Fahrenheit
-        public (int, int) TemperatureIdeale { get => _temperatureIdeale;}
-        private (int, int) _humiditeIdeale = (65, 85); //65 and 85% humidité
-        public (int, int) HumiditeIdeale { get => _humiditeIdeale; }
-        private (int, int) _luminositeIdeale = (17391, 26087); //17391, 26087 lux
-        public (int, int) LuminositeIdeale { get => _luminositeIdeale; }
-
-
-
         public string GiveAdviceTomatoParameters(int minValue, int maxValue, ref string accesseurConseil,
             int accesseurReelle, string propertyName)
         {
@@ -292,7 +202,7 @@ namespace Automate.Utils
             return accesseurConseil;
         }
 
-        private string CreateAdviceString(params string[] items)
+        public string CreateAdviceString(params string[] items)
         {
             if (items.Length == 0) return string.Empty;
 
@@ -323,6 +233,7 @@ namespace Automate.Utils
                 }
             }
         }
+
         private string _temperatureConseil;
         public string TemperatureConseil
         {
@@ -336,6 +247,7 @@ namespace Automate.Utils
                 }
             }
         }
+
         private string _humiditeConseil;
         public string HumiditeConseil
         {
@@ -350,7 +262,6 @@ namespace Automate.Utils
             }
         }
 
-
         private int _temperatureReelle;
         public int TemperatureReelle { 
 			get => _temperatureReelle;
@@ -360,15 +271,17 @@ namespace Automate.Utils
                 {
                     _temperatureReelle = value;
                     OnPropertyChanged(nameof(TemperatureReelle));
-                    string oldValueConseil = TemperatureConseil;
-                    GiveAdviceTomatoParameters(TemperatureIdeale.Item1, 
-                        TemperatureIdeale.Item2, 
-                        ref _temperatureConseil, TemperatureReelle, "Temperature");
-                    if(TemperatureConseil != oldValueConseil)
-                        OnPropertyChanged(nameof(TemperatureConseil));
+                    if (ViewModel is FarmingControlsViewModel farmingControlsViewModel)
+                    {
+                        UpdateConseils(ref _temperatureConseil,
+                            farmingControlsViewModel.TemperatureCondition.MinRangeValue,
+                            farmingControlsViewModel.TemperatureCondition.MaxRangeValue,
+                            TemperatureReelle, "Temperature");
+                    }
                 }
             } 
 		}
+
 
         private int _luminositeReelle;
         public int LuminositeReelle { 
@@ -379,15 +292,17 @@ namespace Automate.Utils
                 {
                     _luminositeReelle = value;
                     OnPropertyChanged(nameof(LuminositeReelle));
-                    string oldValueConseil = LuminositeConseil;
-                    GiveAdviceTomatoParameters(LuminositeIdeale.Item1,
-                        LuminositeIdeale.Item2,
-                        ref _luminositeConseil, LuminositeReelle, "Luminosite");
-                    if (LuminositeConseil != oldValueConseil)
-                        OnPropertyChanged(nameof(LuminositeConseil));
+                    if (ViewModel is FarmingControlsViewModel farmingControlsViewModel)
+                    {
+                        UpdateConseils(ref _luminositeConseil,
+                            farmingControlsViewModel.LuminosityCondition.MinRangeValue,
+                            farmingControlsViewModel.LuminosityCondition.MaxRangeValue,
+                            LuminositeReelle, "Luminosite");
+                    }
                 }
             }
 		}
+
 
         private int _humiditeReelle;
         public int HumiditeReelle { 
@@ -398,16 +313,29 @@ namespace Automate.Utils
                 {
                     _humiditeReelle = value;
                     OnPropertyChanged(nameof(HumiditeReelle));
-                    string oldValueConseil = HumiditeConseil;
-                    GiveAdviceTomatoParameters(HumiditeIdeale.Item1,
-                        HumiditeIdeale.Item2,
-                        ref _humiditeConseil, HumiditeReelle, "Humidite");
-                    if (HumiditeConseil != oldValueConseil)
-                        OnPropertyChanged(nameof(HumiditeConseil));
+                    if (ViewModel is FarmingControlsViewModel farmingControlsViewModel)
+                    {
+                        UpdateConseils(ref _humiditeConseil,
+                            farmingControlsViewModel.HumidityCondition.MinRangeValue,
+                            farmingControlsViewModel.HumidityCondition.MaxRangeValue,
+                            HumiditeReelle, "Humidite");
+                    }
                 }    
             }
 		}
 
+
+        public void UpdateConseils(ref string accesseurConseil, int accesseurClimateConditionMin, 
+            int accesseurClimateConditionMax, int accesseurReelle, string accesseurReelleName)
+        {
+            string oldValueConseil = accesseurConseil;
+            GiveAdviceTomatoParameters(
+                accesseurClimateConditionMin,
+                accesseurClimateConditionMax,
+                ref accesseurConseil, accesseurReelle, accesseurReelleName);
+            if (accesseurConseil != oldValueConseil) { }
+                OnPropertyChanged(accesseurReelleName + "Conseil");
+        }
 
         private bool _meteoDataIsRead;
         public bool MeteoDataIsRead
@@ -511,12 +439,12 @@ namespace Automate.Utils
             }
             catch (Exception ex) 
             {
-                throw new Exception("La lecture du fichier à échoué. Format ou données invalide.", ex);
+                throw new Exception("La lecture du fichier a échouée. Format ou données invalides.", ex);
             }
             
         }
 
-        async private void DisplayLineDelay(int delay, CancellationToken cancellationToken)
+        async public void DisplayLineDelay(int delay, CancellationToken cancellationToken)
         {
             int nbLines = FileData.Count;
             int currentLineIndex = 0;
@@ -527,6 +455,7 @@ namespace Automate.Utils
                 if (currentLineIndex == nbLines)
                     currentLineIndex = 0;
                 currentLineData = FileData[currentLineIndex];
+                AjusterVueJourNuitClimateConditions(currentLineData[0]);
                 for (int i = 1; i < currentLineData.Length; i++)
                 {
                     parameter = ParseStringInt(currentLineData[i]);
@@ -549,18 +478,55 @@ namespace Automate.Utils
                 {
                     break;
                 }
-          
             }
         }
 
-        private int? ParseStringInt(string parameter)
+        public int? ParseStringInt(string parameter)
         {
             if (int.TryParse(parameter, out int result))
                 return result;
             return null;
         }
 
-    }
+        public string? ParseTimestampTimePart(string readTimestamp, bool type=true)
+        {
+    
+            if (DateTime.TryParse(readTimestamp, out DateTime timestamp))
+            {
+                if (type)
+                    return timestamp.ToString("HH:mm");
+                else
+                    return timestamp.ToString("yyyy-MM-dd");
+            }
+            else
+                Debug.WriteLine("Timestamp invalide.");
+            return null;
+        }
 
+        public string? TimestampDayNight(string readTimestamp)
+        {
+            if (DateTime.TryParse(readTimestamp, out DateTime timestamp))
+            {
+                if (timestamp.Hour >= 6 && timestamp.Hour < 18)
+                    return "Jour";
+                else
+                    return "Nuit";
+            }
+            else
+                Debug.WriteLine("Timestamp invalide.");
+            return null;
+        }
+
+        public void AjusterVueJourNuitClimateConditions(string readData)
+        {
+            string? timestamp = ParseTimestampTimePart(readData, true);
+            string? dayNight = null;
+            if (timestamp is not null)
+                dayNight = TimestampDayNight(timestamp);
+            if(dayNight is not null)
+                NotifyPropertyChanged("SelectedMode", dayNight);
+        }
+
+    }
     
 }
