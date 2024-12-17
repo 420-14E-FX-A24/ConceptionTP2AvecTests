@@ -1,10 +1,10 @@
 ﻿using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson;
-using System;
+using System.ComponentModel;
 
 namespace Automate.Models
 {
-	public class ClimateSystem
+	public class ClimateSystem : INotifyPropertyChanged
 	{
 		[BsonId]
 		public ObjectId Id { get; set; }
@@ -12,8 +12,20 @@ namespace Automate.Models
 		[BsonElement("Type")]
 		public SystemTypes Type { get; set; }
 
+		private bool _isActivated;
 		[BsonElement("IsActivated")]
-		public bool IsActivated { get; set; } = false;
+		public bool IsActivated
+		{
+			get => _isActivated;
+			set
+			{
+				if (_isActivated != value)
+				{
+					_isActivated = value;
+					OnPropertyChanged(nameof(IsActivated));
+				}
+			}
+		}
 
 		public enum SystemTypes
 		{
@@ -29,5 +41,13 @@ namespace Automate.Models
 			Id = ObjectId.GenerateNewId();
 			Type = type;
 		}
+
+		public event PropertyChangedEventHandler PropertyChanged;
+
+		protected virtual void OnPropertyChanged(string propertyName)
+		{
+			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+		}
+
 	}
 }

@@ -1,6 +1,5 @@
 ﻿using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson;
-using System;
 
 namespace Automate.Models
 {
@@ -14,9 +13,6 @@ namespace Automate.Models
 
 		[BsonElement("IsDay")]
 		public bool IsDay { get; set; }
-
-		[BsonElement("RealTimeValue")]
-		public int? RealTimeValue { get; set; }
 
 		[BsonElement("MinRangeValue")]
 		public int MinRangeValue { get; set; }

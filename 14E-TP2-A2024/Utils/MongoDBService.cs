@@ -21,6 +21,7 @@ namespace Automate.Utils
 			_users = _database.GetCollection<User>("Users");
 			_tasks = _database.GetCollection<Task>("Tasks");
 			_climateSystems = _database.GetCollection<ClimateSystem>("ClimateSystems");
+			_climateConditions = _database.GetCollection<ClimateCondition>("ClimateConditions");
 
 			AddFirstUser("Andre", false);
 			AddFirstUser("Frederic", true);
