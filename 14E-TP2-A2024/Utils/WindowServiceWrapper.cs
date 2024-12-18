@@ -223,7 +223,7 @@ namespace Automate.Utils
         private string _luminositeConseil;
         public string LuminositeConseil
         {
-            get => _luminositeConseil;
+            get => _luminositeConseil is null ? "Aucun ajustement nécessaire" : _luminositeConseil;
             set
             {
                 if (_luminositeConseil != value)
@@ -237,7 +237,7 @@ namespace Automate.Utils
         private string _temperatureConseil;
         public string TemperatureConseil
         {
-            get => _temperatureConseil;
+            get => _temperatureConseil is null ? "Aucun ajustement nécessaire": _temperatureConseil;
             set
             {
                 if (_temperatureConseil != value)
@@ -251,7 +251,7 @@ namespace Automate.Utils
         private string _humiditeConseil;
         public string HumiditeConseil
         {
-            get => _humiditeConseil;
+            get => _humiditeConseil is null ? "Aucun ajustement nécessaire" : _humiditeConseil;
             set
             {
                 if (_humiditeConseil != value)
@@ -333,7 +333,7 @@ namespace Automate.Utils
                 accesseurClimateConditionMin,
                 accesseurClimateConditionMax,
                 ref accesseurConseil, accesseurReelle, accesseurReelleName);
-            if (accesseurConseil != oldValueConseil) { }
+            if (accesseurConseil != oldValueConseil)
                 OnPropertyChanged(accesseurReelleName + "Conseil");
         }
 
