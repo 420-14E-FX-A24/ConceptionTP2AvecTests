@@ -3,7 +3,7 @@
 !CI/CD Pipeline
 # https://github.com/420-14E-FX-A24/ConceptionTP2AvecTests/actions/workflows/main.yml/badge.svg
 # Automate
-# exécutable
+# standalone application dans Automate.zip. éxécutable doit être exécuté dans le dossier qui contient les dépendances. Il ne peut pas être exécuté seul. Mais, il peut être éxécuté sans le framework.
 #
 # Admin par défaut: "Frederic", mot de passe: "."
 # 
