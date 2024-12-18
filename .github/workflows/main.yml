@@ -97,21 +97,18 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.TOKEN }}
 
-    - name: Debug `create_release` outputs
-      run: |
-        echo "UPLOAD_URL=${{ steps.create_release.outputs.upload_url }}" >> $GITHUB_ENV
-        echo "UPLOAD_URL=${{ steps.create_release.outputs.upload_url }}"
+    - name: Set UPLOAD_URL
+      run: echo "UPLOAD_URL=${{ steps.create_release.outputs.upload_url }}" >> $GITHUB_ENV
 
     - name: Print Upload URL
-      run: echo "${{ env.UPLOAD_URL }}"
+      run: echo "UPLOAD_URL=${{ env.UPLOAD_URL }}"
 
     - name: Upload Release Asset
       uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.TOKEN }}
-        UPLOAD_URL: ${{ steps.create_release.outputs.upload_url }}
       with:
         upload_url: ${{ env.UPLOAD_URL }}
         asset_path: ./14E-TP2-A2024/bin/Release/net6.0-windows/Automate.exe
         asset_name: Automate.exe
         asset_content_type: application/octet-stream
+      env:
+        GITHUB_TOKEN: ${{ secrets.TOKEN }}
