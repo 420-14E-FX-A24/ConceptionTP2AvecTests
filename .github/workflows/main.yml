@@ -96,7 +96,6 @@ jobs:
         prerelease: false
       env:
         GITHUB_TOKEN: ${{ secrets.TOKEN }}
-
     - name: Set UPLOAD_URL
       run: echo "UPLOAD_URL=${{ steps.create_release.outputs.upload_url }}" >> $GITHUB_ENV
 
