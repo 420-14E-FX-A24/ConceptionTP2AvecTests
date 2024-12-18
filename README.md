@@ -6,5 +6,5 @@
 # integration continue 2
 #
 # Admin par défaut: "Frederic", mot de passe: "."
-# \
+# a
 # User par défaut: "Andre", mot de passe: "."
