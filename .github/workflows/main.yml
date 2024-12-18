@@ -97,9 +97,6 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.TOKEN }}
 
-    - name: Print Upload URL
-      run: echo "UPLOAD_URL=${{ steps.create_release.outputs.upload_url }}"
-
     - name: Upload Release Asset
       uses: actions/upload-release-asset@v1
       with:
