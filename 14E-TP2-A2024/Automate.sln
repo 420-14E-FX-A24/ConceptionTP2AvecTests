@@ -5,7 +5,12 @@ VisualStudioVersion = 17.7.34202.233
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Automate", "Automate.csproj", "{D60E0DA0-8AA3-4028-94F2-8149868FC5F3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutomateTests", "..\AutomateTests\AutomateTests.csproj", "{C98E661A-7AD5-4551-B403-B2BF2AFC95BF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AutomateTests", "..\AutomateTests\AutomateTests.csproj", "{C98E661A-7AD5-4551-B403-B2BF2AFC95BF}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Éléments de solution", "Éléments de solution", "{ED28E213-5382-46B7-BF7F-C12E77FEB5F4}"
+	ProjectSection(SolutionItems) = preProject
+		TempData(corrige).txt = TempData(corrige).txt
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
