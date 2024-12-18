@@ -84,11 +84,10 @@ jobs:
 
     - name: Create Release
       id: create_release
-      uses: ChanTsune/release-with-commit@v3.0.0
+      uses: actions/create-release@v1
       with:
-        regexp: 'TP3-V.*'
-        release_name: 'TP3-V${{ steps.extract_short_sha.outputs.short_sha }}'
-        tag_name: 'TP3-V${{ github.sha }}'
+        tag_name: TP3-V${{ steps.extract_short_sha.outputs.short_sha }}
+        release_name: TP3-V${{ steps.extract_short_sha.outputs.short_sha }}
         body: |
           ## Nouvelle version
           - Nouvelle remise
